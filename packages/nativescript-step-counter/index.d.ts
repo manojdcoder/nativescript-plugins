@@ -1,3 +1,3 @@
-import { NativescriptStepCounterCommon } from './common';
+import { StepCounterCommon } from './common';
 
-export declare class NativescriptStepCounter extends NativescriptStepCounterCommon {}
+export declare class StepCounter extends StepCounterCommon {}
