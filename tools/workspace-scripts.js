@@ -55,12 +55,19 @@ module.exports = {
       },
     },
     '⚙️': {
-      script: `npx cowsay "@nativescript/* packages will keep your ⚙️ cranking"`,
-      description: '_____________  @nativescript/*  _____________',
+      script: `npx cowsay "@manojdcoder/* packages will keep your ⚙️ cranking"`,
+      description: '_____________  @manojdcoder/*  _____________',
     },
     // packages
     // build output is always in dist/packages
-    '@nativescript': {
+    '@manojdcoder': {
+      // @manojdcoder/nativescript-step-counter
+      'nativescript-step-counter': {
+        build: {
+          script: 'nx run nativescript-step-counter:build.all',
+          description: '@manojdcoder/nativescript-step-counter: Build',
+        },
+      },
       'build-all': {
         script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
@@ -71,8 +78,12 @@ module.exports = {
       description: '_____________  Focus (VS Code supported)  _____________',
     },
     focus: {
+      'nativescript-step-counter': {
+        script: 'nx run nativescript-step-counter:focus',
+        description: 'Focus on @manojdcoder/nativescript-step-counter',
+      },
       reset: {
-        script: 'nx g @nativescript/plugin-tools:focus-packages',
+        script: 'nx g @manojdcoder/plugin-tools:focus-packages',
         description: 'Reset Focus',
       },
     },
