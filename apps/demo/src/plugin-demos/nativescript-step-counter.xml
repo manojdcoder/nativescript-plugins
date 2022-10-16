@@ -10,6 +10,8 @@
         <Button text="Is Authorized" tap="{{ isAuthorized }}" class="btn btn-primary"/>
         <Button text="Request Authorization" tap="{{ requestAuthorization }}" class="btn btn-primary"/>
         <Button text="Query" tap="{{ query }}" class="btn btn-primary"/>
+        <Button text="{{ activeUpdates ? 'Stop Updates' : 'Start Updates' }}" tap="{{ startOrStopUpdates }}" class="btn btn-primary"/>
+        <Button text="{{ activeEventUpdates ? 'Stop Event Updates' : 'Start Event Updates' }}" tap="{{ startOrStopEventUpdates }}" class="btn btn-primary"/>
       </StackLayout>
     </ScrollView>
   </StackLayout>
