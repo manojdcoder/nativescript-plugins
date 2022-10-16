@@ -14,6 +14,8 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
 
   private _activeEventUpdates = false;
 
+  private _log = '';
+
   get activeUpdates(): boolean {
     return this._activeUpdates;
   }
@@ -36,6 +38,20 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
     }
   }
 
+  get log(): string {
+    return this._log;
+  }
+
+  set log(value: object | string) {
+    if (value !== null && typeof value === 'object') {
+      value = JSON.stringify(value, null, 4);
+    }
+    if (this._log !== value) {
+      this._log = value as string;
+      this.notifyPropertyChange('log', value);
+    }
+  }
+
   isAvailable(): void {
     this.pedometer.isAvailable().then((value) => alert(value ? 'Available' : 'Not available'));
   }
@@ -47,8 +63,11 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
   requestAuthorization(): void {
     this.pedometer
       .requestAuthorization()
-      .then(() => console.log('Permission granted'))
-      .catch((err) => console.log(`Permission denied\n${err}`));
+      .then(() => alert('Permission granted'))
+      .catch((error) => {
+        alert('Permission denied');
+        console.log(error);
+      });
   }
 
   async query(): Promise<void> {
@@ -62,8 +81,7 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
         startDate.setTime(startDate.getTime() - minutes * 60 * 1000);
 
         try {
-          const data = await this.pedometer.query({ startDate });
-          alert(JSON.stringify(data, null, 4));
+          this.log = await this.pedometer.query({ startDate });
         } catch (err) {
           console.log(err);
         }
@@ -79,7 +97,7 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
       } else {
         await this.pedometer.startUpdates({
           onUpdate: (data) => {
-            console.log(data);
+            this.log = data;
           },
         });
         this.activeUpdates = true;
@@ -97,7 +115,7 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
       } else {
         await this.pedometer.startEventUpdates({
           onUpdate: (data) => {
-            console.log(data);
+            this.log = data;
           },
         });
         this.activeEventUpdates = true;

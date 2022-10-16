@@ -1,6 +1,7 @@
 import { PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions, Common } from './common';
 
 export class Pedometer extends Common {
+  private mainQueue: NSObject = dispatch_get_current_queue();
   private cmPedometer: CMPedometer = new CMPedometer();
 
   isAvailable(): Promise<boolean> {
@@ -85,11 +86,13 @@ export class Pedometer extends Common {
         }
 
         this.cmPedometer.startPedometerUpdatesFromDateWithHandler(startDate, (cmPedometerData, error) => {
-          if (error) {
-            reject(error);
-          } else {
-            onUpdate(this.convert(cmPedometerData));
-          }
+          dispatch_async(this.mainQueue, () => {
+            if (error) {
+              reject(error);
+            } else {
+              onUpdate(this.convert(cmPedometerData));
+            }
+          });
         });
         resolve();
       } catch (error) {
@@ -113,14 +116,16 @@ export class Pedometer extends Common {
     return new Promise((resolve, reject) => {
       try {
         this.cmPedometer.startPedometerEventUpdatesWithHandler((cmPedometerEvent, error) => {
-          if (error) {
-            reject(error);
-          } else {
-            onUpdate({
-              type: cmPedometerEvent.type === CMPedometerEventType.Pause ? PedometerEventType.Pause : PedometerEventType.Resume,
-              date: cmPedometerEvent.date,
-            });
-          }
+          dispatch_async(this.mainQueue, () => {
+            if (error) {
+              reject(error);
+            } else {
+              onUpdate({
+                type: cmPedometerEvent.type === CMPedometerEventType.Pause ? PedometerEventType.Pause : PedometerEventType.Resume,
+                date: cmPedometerEvent.date,
+              });
+            }
+          });
         });
         resolve();
       } catch (error) {
