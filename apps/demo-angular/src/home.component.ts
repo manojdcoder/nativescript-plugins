@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 export class HomeComponent {
   demos = [
     {
-      name: 'nativescript-step-counter',
+      name: 'nativescript-pedometer',
     },
   ];
 }

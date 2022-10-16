@@ -1,11 +1,4 @@
-# @manojdcoder/\* plugins
-
-```
-npm run setup
-npm start
-```
-
-- [@manojdcoder/nativescript-step-counter](packages/nativescript-step-counter/README.md)
+- [@manojdcoder/nativescript-pedometer](packages/nativescript-pedometer/README.md)
 
 # How to use?
 

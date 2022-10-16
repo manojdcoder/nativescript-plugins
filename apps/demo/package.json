@@ -5,7 +5,7 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@manojdcoder/nativescript-step-counter": "file:../../packages/nativescript-step-counter"
+    "@manojdcoder/nativescript-pedometer": "file:../../packages/nativescript-pedometer"
   },
   "devDependencies": {
     "@nativescript/android": "~8.3.0",

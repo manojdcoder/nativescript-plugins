@@ -1,6 +1,6 @@
-import { PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions, StepCounterCommon } from './common';
+import { PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions, Common } from './common';
 
-export class StepCounter extends StepCounterCommon {
+export class Pedometer extends Common {
   private cmPedometer: CMPedometer = new CMPedometer();
 
   isAvailable(): Promise<boolean> {

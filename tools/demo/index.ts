@@ -1,2 +1,2 @@
 export * from './utils';
-export * from './nativescript-step-counter';
+export * from './nativescript-pedometer';

@@ -1,7 +1,7 @@
-# @manojdcoder/nativescript-step-counter
+# @manojdcoder/nativescript-pedometer
 
 ```javascript
-ns plugin add @manojdcoder/nativescript-step-counter
+ns plugin add @manojdcoder/nativescript-pedometer
 ```
 
 ## Usage

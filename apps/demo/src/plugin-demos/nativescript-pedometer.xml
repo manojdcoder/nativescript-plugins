@@ -1,6 +1,6 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
   <Page.actionBar>
-    <ActionBar title="nativescript-step-counter" icon="" class="action-bar">
+    <ActionBar title="nativescript-pedometer" icon="" class="action-bar">
     </ActionBar>
   </Page.actionBar>
   <StackLayout class="p-20">

@@ -1,22 +1,22 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/nativescript-step-counter",
+  "sourceRoot": "packages/nativescript-pedometer",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "options": {
-        "outputPath": "dist/packages/nativescript-step-counter",
-        "tsConfig": "packages/nativescript-step-counter/tsconfig.json",
-        "packageJson": "packages/nativescript-step-counter/package.json",
-        "main": "packages/nativescript-step-counter/index.d.ts",
+        "outputPath": "dist/packages/nativescript-pedometer",
+        "tsConfig": "packages/nativescript-pedometer/tsconfig.json",
+        "packageJson": "packages/nativescript-pedometer/package.json",
+        "main": "packages/nativescript-pedometer/index.d.ts",
         "assets": [
-          "packages/nativescript-step-counter/*.md",
-          "packages/nativescript-step-counter/index.d.ts",
+          "packages/nativescript-pedometer/*.md",
+          "packages/nativescript-pedometer/index.d.ts",
           "LICENSE",
           {
             "glob": "**/*",
-            "input": "packages/nativescript-step-counter/platforms/",
+            "input": "packages/nativescript-pedometer/platforms/",
             "output": "./platforms/"
           }
         ],
@@ -31,10 +31,10 @@
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts nativescript-step-counter"],
+        "commands": ["node tools/scripts/build-finish.ts nativescript-pedometer"],
         "parallel": false
       },
-      "outputs": ["dist/packages/nativescript-step-counter"],
+      "outputs": ["dist/packages/nativescript-pedometer"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -49,14 +49,14 @@
     "focus": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["nx g @nativescript/plugin-tools:focus-packages nativescript-step-counter"],
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages nativescript-pedometer"],
         "parallel": false
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["packages/nativescript-step-counter/**/*.ts"]
+        "lintFilePatterns": ["packages/nativescript-pedometer/**/*.ts"]
       }
     }
   },

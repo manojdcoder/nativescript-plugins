@@ -1,14 +1,14 @@
 import { EventData, Page, prompt } from '@nativescript/core';
-import { DemoSharedNativescriptStepCounter } from '@demo/shared';
-import { StepCounter } from '@manojdcoder/nativescript-step-counter';
+import { DemoSharedNativescriptPedometer } from '@demo/shared';
+import { Pedometer } from '@manojdcoder/nativescript-pedometer';
 
 export function navigatingTo(args: EventData) {
   const page = <Page>args.object;
   page.bindingContext = new DemoModel();
 }
 
-export class DemoModel extends DemoSharedNativescriptStepCounter {
-  stepCounter: StepCounter = new StepCounter();
+export class DemoModel extends DemoSharedNativescriptPedometer {
+  pedometer: Pedometer = new Pedometer();
 
   private _activeUpdates = false;
 
@@ -37,32 +37,32 @@ export class DemoModel extends DemoSharedNativescriptStepCounter {
   }
 
   isAvailable(): void {
-    this.stepCounter.isAvailable().then((value) => alert(value ? 'Available' : 'Not available'));
+    this.pedometer.isAvailable().then((value) => alert(value ? 'Available' : 'Not available'));
   }
 
   isAuthorized(): void {
-    this.stepCounter.isAuthorized().then((value) => alert(value ? 'Authorized' : 'Not authorized'));
+    this.pedometer.isAuthorized().then((value) => alert(value ? 'Authorized' : 'Not authorized'));
   }
 
   requestAuthorization(): void {
-    this.stepCounter
+    this.pedometer
       .requestAuthorization()
       .then(() => console.log('Permission granted'))
       .catch((err) => console.log(`Permission denied\n${err}`));
   }
 
   async query(): Promise<void> {
-    const data = await prompt('Query steps since?\n In minutes', '10');
+    const data = await prompt('Query steps since?\n In minutes', '0.5');
 
     if (data.result) {
-      const minutes = parseInt(data.text);
+      const minutes = parseFloat(data.text);
 
       if (!isNaN(minutes)) {
         const startDate = new Date();
         startDate.setTime(startDate.getTime() - minutes * 60 * 1000);
 
         try {
-          const data = await this.stepCounter.query({ startDate });
+          const data = await this.pedometer.query({ startDate });
           alert(JSON.stringify(data, null, 4));
         } catch (err) {
           console.log(err);
@@ -74,10 +74,10 @@ export class DemoModel extends DemoSharedNativescriptStepCounter {
   async startOrStopUpdates(): Promise<void> {
     try {
       if (this.activeUpdates) {
-        await this.stepCounter.stopUpdates();
+        await this.pedometer.stopUpdates();
         this.activeUpdates = false;
       } else {
-        await this.stepCounter.startUpdates({
+        await this.pedometer.startUpdates({
           onUpdate: (data) => {
             console.log(data);
           },
@@ -92,10 +92,10 @@ export class DemoModel extends DemoSharedNativescriptStepCounter {
   async startOrStopEventUpdates(): Promise<void> {
     try {
       if (this.activeEventUpdates) {
-        await this.stepCounter.stopEventUpdates();
+        await this.pedometer.stopEventUpdates();
         this.activeEventUpdates = false;
       } else {
-        await this.stepCounter.startEventUpdates({
+        await this.pedometer.startEventUpdates({
           onUpdate: (data) => {
             console.log(data);
           },

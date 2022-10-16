@@ -22,7 +22,8 @@
     "paths": {
       "@demo/shared": ["tools/demo/index.ts"],
       "@manojdcoder/*": ["packages/*"],
-      "@manojdcoder/nativescript-step-counter": ["packages/nativescript-step-counter/index.d.ts"]
+      "@manojdcoder/nativescript-step-counter": ["packages/nativescript-step-counter/index.d.ts"],
+      "@manojdcoder/nativescript-pedometer": ["packages/nativescript-pedometer/index.d.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

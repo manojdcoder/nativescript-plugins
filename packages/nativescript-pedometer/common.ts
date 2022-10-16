@@ -36,7 +36,7 @@ export interface PedometerEventUpdatesOptions {
   onUpdate: (data: PedometerEventData) => void;
 }
 
-export abstract class StepCounterCommon extends Observable {
+export abstract class Common extends Observable {
   abstract isAvailable(): Promise<boolean>;
   abstract isStepCountingAvailable(): Promise<boolean>;
   abstract isDistanceAvailable(): Promise<boolean>;
