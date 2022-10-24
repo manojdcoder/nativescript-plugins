@@ -54,7 +54,5 @@
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
 			<true/>
 		</dict>
-		<key>NSMotionUsageDescription</key>
-		<string>We are using motion usage in order to track your step count.</string>
 	</dict>
 </plist>

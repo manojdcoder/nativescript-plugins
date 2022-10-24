@@ -1,5 +1,6 @@
 import { Utils } from '@nativescript/core';
 import { hasPermission, requestPermission } from 'nativescript-permissions';
+import { CouchBase } from '@triniwiz/nativescript-couchbase';
 import { Common, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions } from './common';
 
 enum State {
@@ -10,6 +11,7 @@ enum State {
 }
 
 export class Pedometer extends Common {
+  private databaseName = 'step-counter';
   private startSteps = 0;
   private startDate: Date = new Date();
 
@@ -61,7 +63,28 @@ export class Pedometer extends Common {
   }
 
   query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
-    throw new Error('Method not implemented!');
+    return new Promise((resolve) => {
+      if (!endDate) {
+        endDate = new Date();
+      }
+
+      const database = new CouchBase(this.databaseName);
+      const items = database.query({
+        select: [],
+        where: [
+          { property: 'startDate', comparison: 'greaterThanOrEqualTo', value: startDate.getTime() },
+          { property: 'endDate', comparison: 'lessThanOrEqualTo', value: endDate.getTime() },
+        ],
+      });
+      database.close();
+      const numberOfSteps = items.reduce((prevValue, item) => prevValue + item.numberOfSteps, 0);
+
+      resolve({
+        startDate: startDate,
+        endDate: endDate,
+        numberOfSteps: numberOfSteps,
+      });
+    });
   }
 
   public startUpdates({ onUpdate }: PedometerUpdatesOptions): Promise<void> {
@@ -82,7 +105,6 @@ export class Pedometer extends Common {
 
                 this.state = State.Started;
 
-                const endDate = new Date();
                 let numberOfSteps = sensorEvent.values[0];
 
                 if (this.startSteps === 0) {
@@ -93,11 +115,11 @@ export class Pedometer extends Common {
 
                 onUpdate({
                   startDate: this.startDate,
-                  endDate: endDate,
+                  endDate: new Date(),
                   numberOfSteps: numberOfSteps,
                 });
 
-                this.startDate = endDate;
+                this.startDate = new Date();
               }
             },
             onAccuracyChanged: () => {
