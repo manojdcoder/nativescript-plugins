@@ -49,6 +49,6 @@ export abstract class Common extends Observable {
   abstract query(options: PedometerQueryOptions): Promise<PedometerData>;
   abstract startUpdates(options: PedometerUpdatesOptions): Promise<void>;
   abstract stopUpdates(): Promise<void>;
-  abstract startEventUpdates(options: PedometerEventUpdatesOptions): Promise<void>;
-  abstract stopEventUpdates(): Promise<void>;
+  startEventUpdates?(options: PedometerEventUpdatesOptions): Promise<void>;
+  stopEventUpdates?(): Promise<void>;
 }

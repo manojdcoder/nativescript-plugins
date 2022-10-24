@@ -1,8 +1,14 @@
-import { PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions, Common } from './common';
+import { Common, PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions } from './common';
 
 export class Pedometer extends Common {
-  private mainQueue: NSObject = dispatch_get_current_queue();
-  private cmPedometer: CMPedometer = new CMPedometer();
+  private mainQueue: NSObject;
+  private cmPedometer: CMPedometer;
+
+  constructor() {
+    super();
+    this.mainQueue = dispatch_get_current_queue();
+    this.cmPedometer = new CMPedometer();
+  }
 
   isAvailable(): Promise<boolean> {
     return this.isStepCountingAvailable();

@@ -110,10 +110,10 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
   async startOrStopEventUpdates(): Promise<void> {
     try {
       if (this.activeEventUpdates) {
-        await this.pedometer.stopEventUpdates();
+        await this.pedometer.stopEventUpdates?.();
         this.activeEventUpdates = false;
       } else {
-        await this.pedometer.startEventUpdates({
+        await this.pedometer.startEventUpdates?.({
           onUpdate: (data) => {
             this.log = data;
           },
