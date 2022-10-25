@@ -14,6 +14,12 @@
         <ios>
           <Button text="{{ activeEventUpdates ? 'Stop Event Updates' : 'Start Event Updates' }}" tap="{{ startOrStopEventUpdates }}" class="btn btn-primary"/>
         </ios>
+        <android>
+          <GridLayout columns="*,auto">
+            <Label col="0" text="Always count steps" class="text-muted" textWrap="true" />
+            <Switch col="1" checked="{{ isRecording }}" />
+          </GridLayout>
+        </android>
         <Label text="{{ log }}" class="text-muted" textWrap="true" />
       </StackLayout>
     </ScrollView>

@@ -16,6 +16,8 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
 
   private _log = '';
 
+  private _isRecording = this.pedometer.isRecording?.() ?? false;
+
   get activeUpdates(): boolean {
     return this._activeUpdates;
   }
@@ -35,6 +37,22 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
     if (this._activeEventUpdates !== value) {
       this._activeEventUpdates = value;
       this.notifyPropertyChange('activeEventUpdates', value);
+    }
+  }
+
+  get isRecording(): boolean {
+    return this._isRecording;
+  }
+
+  set isRecording(value: boolean) {
+    if (this._isRecording !== value) {
+      if (value) {
+        this.pedometer.startRecording?.();
+      } else {
+        this.pedometer.stopRecording?.();
+      }
+      this._isRecording = value;
+      this.notifyPropertyChange('isRecording', value);
     }
   }
 

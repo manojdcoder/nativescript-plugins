@@ -1,4 +1,4 @@
-import { Observable } from '@nativescript/core';
+import { ApplicationSettings, Observable } from '@nativescript/core';
 
 export interface PedometerQueryOptions {
   startDate: Date;
@@ -51,4 +51,39 @@ export abstract class Common extends Observable {
   abstract stopUpdates(): Promise<void>;
   startEventUpdates?(options: PedometerEventUpdatesOptions): Promise<void>;
   stopEventUpdates?(): Promise<void>;
+  isRecording?(): boolean;
+  startRecording?(): void;
+  stopRecording?(): void;
+}
+
+export const DatabaseName = 'step-counter';
+
+export const ServiceStateProperty = 'StepCounterServiceState';
+const NotificationTitleProperty = 'StepCounterNotificationTitle';
+const NotificationDescriptionProperty = 'StepCounterNotificationDescription';
+
+export function setNotificationTitle(value: string) {
+  ApplicationSettings.setString(NotificationTitleProperty, value);
+}
+
+export function getNotificationTitle(): string {
+  return ApplicationSettings.getString(NotificationTitleProperty, 'Step Counter');
+}
+
+export function setNotificationDescription(value: string) {
+  ApplicationSettings.setString(NotificationDescriptionProperty, value);
+}
+
+export function getNotificationDescription(): string {
+  return ApplicationSettings.getString(NotificationDescriptionProperty, 'Recording the step counts.');
+}
+
+export enum ServiceAction {
+  Start = 'Start',
+  Stop = 'Stop',
+}
+
+export enum ServiceState {
+  Started = 'Started',
+  Stopped = 'Stopped',
 }

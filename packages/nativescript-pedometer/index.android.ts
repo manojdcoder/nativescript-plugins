@@ -1,7 +1,16 @@
-import { Utils } from '@nativescript/core';
+/* eslint-disable @typescript-eslint/no-namespace */
+/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
+
+import { ApplicationSettings, Utils } from '@nativescript/core';
 import { hasPermission, requestPermission } from 'nativescript-permissions';
-import { CouchBase } from '@triniwiz/nativescript-couchbase';
-import { Common, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions } from './common';
+import { CouchBase, QueryLogicalOperator } from '@triniwiz/nativescript-couchbase';
+import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions, ServiceAction, ServiceState, ServiceStateProperty } from './common';
+
+declare module me {
+  module manojdcoder {
+    class StepCounterService extends android.app.Service {}
+  }
+}
 
 enum State {
   Starting,
@@ -11,7 +20,6 @@ enum State {
 }
 
 export class Pedometer extends Common {
-  private databaseName = 'step-counter';
   private startSteps = 0;
   private startDate: Date = new Date();
 
@@ -68,12 +76,12 @@ export class Pedometer extends Common {
         endDate = new Date();
       }
 
-      const database = new CouchBase(this.databaseName);
+      const database = new CouchBase(DatabaseName);
       const items = database.query({
         select: [],
         where: [
           { property: 'startDate', comparison: 'greaterThanOrEqualTo', value: startDate.getTime() },
-          { property: 'endDate', comparison: 'lessThanOrEqualTo', value: endDate.getTime() },
+          { property: 'endDate', comparison: 'lessThanOrEqualTo', value: endDate.getTime(), logical: QueryLogicalOperator.AND },
         ],
       });
       database.close();
@@ -105,21 +113,21 @@ export class Pedometer extends Common {
 
                 this.state = State.Started;
 
-                let numberOfSteps = sensorEvent.values[0];
+                const eventSteps = sensorEvent.values[0];
 
                 if (this.startSteps === 0) {
-                  this.startSteps = numberOfSteps;
+                  this.startSteps = eventSteps;
+                } else {
+                  const numberOfSteps = eventSteps - this.startSteps;
+
+                  this.startSteps = eventSteps;
+                  onUpdate({
+                    startDate: this.startDate,
+                    endDate: new Date(),
+                    numberOfSteps: numberOfSteps,
+                  });
+                  this.startDate = new Date();
                 }
-
-                numberOfSteps = numberOfSteps - this.startSteps;
-
-                onUpdate({
-                  startDate: this.startDate,
-                  endDate: new Date(),
-                  numberOfSteps: numberOfSteps,
-                });
-
-                this.startDate = new Date();
               }
             },
             onAccuracyChanged: () => {
@@ -127,7 +135,7 @@ export class Pedometer extends Common {
             },
           });
 
-          if (this.sensorManager.registerListener(this.sensorEventListener, this.sensor, android.hardware.SensorManager.SENSOR_DELAY_UI)) {
+          if (this.sensorManager.registerListener(this.sensorEventListener, this.sensor, android.hardware.SensorManager.SENSOR_DELAY_NORMAL)) {
             this.state = State.Starting;
             resolve();
           } else {
@@ -158,7 +166,31 @@ export class Pedometer extends Common {
     });
   }
 
+  isRecording(): boolean {
+    return ApplicationSettings.getString(ServiceStateProperty, ServiceState.Stopped) === ServiceState.Started;
+  }
+
+  startRecording(): void {
+    this.invokeService(ServiceAction.Start);
+  }
+
+  stopRecording(): void {
+    this.invokeService(ServiceAction.Stop);
+  }
+
   private getSensorList(): java.util.List<android.hardware.Sensor> {
     return this.sensorManager.getSensorList(android.hardware.Sensor.TYPE_STEP_COUNTER);
+  }
+
+  private invokeService(action: ServiceAction): void {
+    const context = Utils.ad.getApplicationContext() as android.content.Context;
+    const intent = new android.content.Intent(context, me.manojdcoder.StepCounterService.class);
+
+    intent.setAction(action);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+      context.startForegroundService(intent);
+    } else {
+      context.startService(intent);
+    }
   }
 }
