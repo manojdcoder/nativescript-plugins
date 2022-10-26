@@ -2,6 +2,7 @@ const webpack = require('@nativescript/webpack');
 const { resolve } = require('path');
 
 module.exports = (env) => {
+  // Add android service files from the plugin
   env.appComponents = (env.appComponents || []).concat([resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-service.android'), resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-broadcast-receiver.android')]);
 
   webpack.init(env);

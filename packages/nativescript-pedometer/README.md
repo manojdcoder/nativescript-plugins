@@ -15,7 +15,11 @@ Refer the [demo app](../../apps/demo/src/plugin-demos/nativescript-pedometer.ts)
 Foreground service is used to continuously monitor step counts even app is in background or not running or killed. The webpack configuration must be adjusted to include the foreground service,
 
 ```
+const webpack = require('@nativescript/webpack');
+const { resolve } = require('path');
+
 module.exports = (env) => {
+  // Copy the line below to your webpack.config.js
   env.appComponents = (env.appComponents || []).concat([resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-service.android'), resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-broadcast-receiver.android')]);
 
   webpack.init(env);
