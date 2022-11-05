@@ -20,7 +20,7 @@ const { resolve } = require('path');
 
 module.exports = (env) => {
   // Copy the line below to your webpack.config.js
-  env.appComponents = (env.appComponents || []).concat([resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-service.android'), resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-broadcast-receiver.android')]);
+  env.appComponents = (env.appComponents || []).concat([resolve(__dirname, 'node_modules/@manojdcoder/nativescript-pedometer/step-counter-broadcast-receiver.android')]);
 
   webpack.init(env);
   webpack.useConfig('typescript');

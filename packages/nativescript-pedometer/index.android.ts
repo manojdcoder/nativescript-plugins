@@ -1,16 +1,7 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
-
 import { ApplicationSettings, Utils } from '@nativescript/core';
 import { hasPermission, requestPermission } from 'nativescript-permissions';
 import { CouchBase, QueryLogicalOperator } from '@triniwiz/nativescript-couchbase';
 import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions, ServiceAction, ServiceState, ServiceStateProperty } from './common';
-
-declare module me {
-  module manojdcoder {
-    class StepCounterService extends android.app.Service {}
-  }
-}
 
 enum State {
   Starting,
