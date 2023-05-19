@@ -1,17 +1,34 @@
 import { Common, PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions } from './common';
+import { HealthData, HealthDataType } from 'nativescript-health-data';
 
 export class Pedometer extends Common {
+  private appleHealthId: string = 'com.apple.Health';
+  private dataTypes: Array<HealthDataType> = [
+    { name: 'distance', accessType: 'read' },
+    { name: 'steps', accessType: 'read' },
+    { name: 'calories', accessType: 'read' },
+    { name: 'height', accessType: 'read' },
+    { name: 'weight', accessType: 'read' },
+    { name: 'heartRate', accessType: 'read' },
+    { name: 'fatPercentage', accessType: 'read' },
+  ];
+
   private mainQueue: NSObject;
   private cmPedometer: CMPedometer;
+  private healthData: HealthData;
 
-  constructor() {
-    super();
+  constructor(useHealthData: boolean = true) {
+    super(useHealthData);
     this.mainQueue = dispatch_get_current_queue();
-    this.cmPedometer = new CMPedometer();
+    if (this.useHealthData) {
+      this.healthData = new HealthData();
+    } else {
+      this.cmPedometer = new CMPedometer();
+    }
   }
 
   isAvailable(): Promise<boolean> {
-    return this.isStepCountingAvailable();
+    return this.useHealthData ? this.healthData.isAvailable() : this.isStepCountingAvailable();
   }
 
   isStepCountingAvailable(): Promise<boolean> {
@@ -39,12 +56,20 @@ export class Pedometer extends Common {
   }
 
   isAuthorized(): Promise<boolean> {
+    if (this.useHealthData) {
+      return this.healthData.isAuthorized(this.dataTypes);
+    }
+
     const status = CMPedometer.authorizationStatus();
     const authorized = status === CMAuthorizationStatus.Authorized;
     return Promise.resolve(authorized);
   }
 
   requestAuthorization(): Promise<void> {
+    if (this.useHealthData) {
+      return this.healthData.requestAuthorization(this.dataTypes).then(() => undefined);
+    }
+
     return new Promise((resolve, reject) => {
       const status = CMPedometer.authorizationStatus();
 
@@ -69,6 +94,31 @@ export class Pedometer extends Common {
   }
 
   query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
+    if (this.useHealthData) {
+      return Promise.all([this.healthData.query({ startDate, endDate, dataType: 'steps', unit: 'count', aggregateBy: 'sourceAndDay' }), this.healthData.query({ startDate, endDate, dataType: 'calories', unit: 'count', aggregateBy: 'sourceAndDay' })]).then((response) => {
+        const result: PedometerData = {
+          startDate: startDate,
+          endDate: endDate,
+          numberOfSteps: 0,
+          numberOfCalories: 0,
+        };
+
+        response[0].forEach((responseItem) => {
+          if (responseItem.source !== this.appleHealthId) {
+            result.numberOfSteps += responseItem.value;
+          }
+        });
+
+        response[1].forEach((responseItem) => {
+          if (responseItem.source !== this.appleHealthId) {
+            result.numberOfCalories += responseItem.value;
+          }
+        });
+
+        return result;
+      });
+    }
+
     return new Promise((resolve, reject) => {
       if (!endDate) {
         endDate = new Date();
@@ -85,12 +135,25 @@ export class Pedometer extends Common {
   }
 
   public startUpdates({ startDate, onUpdate }: PedometerUpdatesOptions): Promise<void> {
+    if (!startDate) {
+      startDate = new Date();
+    }
+
+    if (this.useHealthData) {
+      return this.healthData.startMonitoring({
+        dataType: 'steps',
+        enableBackgroundUpdates: true,
+        backgroundUpdateFrequency: 'immediate',
+        onUpdate: (completionHandler: () => void) => {
+          this.query({ startDate: startDate, endDate: new Date() })
+            .then((result) => onUpdate(result))
+            .then(() => completionHandler());
+        },
+      });
+    }
+
     return new Promise((resolve, reject) => {
       try {
-        if (!startDate) {
-          startDate = new Date();
-        }
-
         this.cmPedometer.startPedometerUpdatesFromDateWithHandler(startDate, (cmPedometerData, error) => {
           dispatch_async(this.mainQueue, () => {
             if (error) {
@@ -108,6 +171,12 @@ export class Pedometer extends Common {
   }
 
   public stopUpdates(): Promise<void> {
+    if (this.useHealthData) {
+      return this.healthData.stopMonitoring({
+        dataType: 'steps',
+      });
+    }
+
     return new Promise((resolve, reject) => {
       try {
         this.cmPedometer.stopPedometerUpdates();
@@ -119,6 +188,10 @@ export class Pedometer extends Common {
   }
 
   public startEventUpdates({ onUpdate }: PedometerEventUpdatesOptions): Promise<void> {
+    if (this.useHealthData) {
+      return Promise.reject('Not implemented!');
+    }
+
     return new Promise((resolve, reject) => {
       try {
         this.cmPedometer.startPedometerEventUpdatesWithHandler((cmPedometerEvent, error) => {
@@ -141,6 +214,10 @@ export class Pedometer extends Common {
   }
 
   public stopEventUpdates(): Promise<void> {
+    if (this.useHealthData) {
+      return Promise.reject('Not implemented!');
+    }
+
     return new Promise((resolve, reject) => {
       try {
         this.cmPedometer.stopPedometerEventUpdates();

@@ -14,6 +14,7 @@ export interface PedometerData {
   startDate: Date;
   endDate: Date;
   numberOfSteps: number;
+  numberOfCalories?: number;
   distance?: number;
   floorsAscended?: number;
   floorsDescended?: number;
@@ -37,6 +38,9 @@ export interface PedometerEventUpdatesOptions {
 }
 
 export abstract class Common extends Observable {
+  constructor(protected useHealthData: boolean = true) {
+    super();
+  }
   abstract isAvailable(): Promise<boolean>;
   abstract isStepCountingAvailable(): Promise<boolean>;
   abstract isDistanceAvailable(): Promise<boolean>;
