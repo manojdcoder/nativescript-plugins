@@ -4,13 +4,13 @@ import { HealthData, HealthDataType } from 'nativescript-health-data';
 export class Pedometer extends Common {
   private appleHealthId: string = 'com.apple.Health';
   private dataTypes: Array<HealthDataType> = [
-    { name: 'distance', accessType: 'read' },
-    { name: 'steps', accessType: 'read' },
-    { name: 'calories', accessType: 'read' },
-    { name: 'height', accessType: 'read' },
-    { name: 'weight', accessType: 'read' },
-    { name: 'heartRate', accessType: 'read' },
-    { name: 'fatPercentage', accessType: 'read' },
+    { name: 'distance', accessType: 'readAndWrite' },
+    { name: 'steps', accessType: 'readAndWrite' },
+    { name: 'calories', accessType: 'readAndWrite' },
+    { name: 'height', accessType: 'readAndWrite' },
+    { name: 'weight', accessType: 'readAndWrite' },
+    { name: 'heartRate', accessType: 'readAndWrite' },
+    { name: 'fatPercentage', accessType: 'readAndWrite' },
   ];
 
   private mainQueue: NSObject;
@@ -95,7 +95,7 @@ export class Pedometer extends Common {
 
   query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
     if (this.useHealthData) {
-      return Promise.all([this.healthData.query({ startDate, endDate, dataType: 'steps', unit: 'count', aggregateBy: 'sourceAndDay' }), this.healthData.query({ startDate, endDate, dataType: 'calories', unit: 'count', aggregateBy: 'sourceAndDay' })]).then((response) => {
+      return Promise.all([this.healthData.query({ startDate, endDate, dataType: 'steps', unit: 'count', aggregateBy: 'sourceAndDay' }), this.healthData.query({ startDate, endDate, dataType: 'calories', unit: 'kcal', aggregateBy: 'sourceAndDay' })]).then((response) => {
         const result: PedometerData = {
           startDate: startDate,
           endDate: endDate,

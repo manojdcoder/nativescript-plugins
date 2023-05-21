@@ -54,5 +54,9 @@
 			<key>NSAllowsArbitraryLoadsInWebContent</key>
 			<true/>
 		</dict>
+		<key>NSHealthUpdateUsageDescription</key>
+		<string>Demo app wants to update HealthKit</string>
+		<key>NSHealthShareUsageDescription</key>
+		<string>Demo app wants to share HealthKit</string>
 	</dict>
 </plist>
