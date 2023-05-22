@@ -145,9 +145,11 @@ export class Pedometer extends Common {
         enableBackgroundUpdates: true,
         backgroundUpdateFrequency: 'immediate',
         onUpdate: (completionHandler: () => void) => {
-          this.query({ startDate: startDate, endDate: new Date() })
-            .then((result) => onUpdate(result))
-            .then(() => completionHandler());
+          dispatch_async(this.mainQueue, () => {
+            this.query({ startDate: startDate, endDate: new Date() })
+              .then((result) => onUpdate(result))
+              .then(() => completionHandler());
+          });
         },
       });
     }
