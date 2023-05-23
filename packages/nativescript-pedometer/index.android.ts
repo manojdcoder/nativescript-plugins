@@ -2,6 +2,7 @@ import { ApplicationSettings, Utils } from '@nativescript/core';
 import { hasPermission, requestPermission } from 'nativescript-permissions';
 import { CouchBase, QueryLogicalOperator } from '@triniwiz/nativescript-couchbase';
 import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions, ServiceAction, ServiceState, ServiceStateProperty } from './common';
+import { HealthDataType } from 'nativescript-health-data';
 
 enum State {
   Starting,
@@ -53,11 +54,11 @@ export class Pedometer extends Common {
     return Promise.resolve(false);
   }
 
-  isAuthorized(): Promise<boolean> {
+  isAuthorized(types?: Array<HealthDataType>): Promise<boolean> {
     return Promise.resolve(hasPermission(android.Manifest.permission.ACTIVITY_RECOGNITION));
   }
 
-  requestAuthorization(): Promise<void> {
+  requestAuthorization(types?: Array<HealthDataType>): Promise<void> {
     return requestPermission(android.Manifest.permission.ACTIVITY_RECOGNITION);
   }
 

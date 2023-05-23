@@ -1,4 +1,5 @@
 import { ApplicationSettings, Observable } from '@nativescript/core';
+import { HealthDataType } from 'nativescript-health-data';
 
 export interface PedometerQueryOptions {
   startDate: Date;
@@ -38,6 +39,15 @@ export interface PedometerEventUpdatesOptions {
 }
 
 export abstract class Common extends Observable {
+  protected defaultTypes: Array<HealthDataType> = [
+    { name: 'distance', accessType: 'readAndWrite' },
+    { name: 'steps', accessType: 'readAndWrite' },
+    { name: 'calories', accessType: 'readAndWrite' },
+    { name: 'height', accessType: 'readAndWrite' },
+    { name: 'weight', accessType: 'readAndWrite' },
+    { name: 'heartRate', accessType: 'readAndWrite' },
+    { name: 'fatPercentage', accessType: 'readAndWrite' },
+  ];
   constructor(protected useHealthData: boolean = true) {
     super();
   }
@@ -48,8 +58,8 @@ export abstract class Common extends Observable {
   abstract isPaceAvailable(): Promise<boolean>;
   abstract isCadenceAvailable(): Promise<boolean>;
   abstract isEventTrackingAvailable(): Promise<boolean>;
-  abstract isAuthorized(): Promise<boolean>;
-  abstract requestAuthorization(): Promise<void>;
+  abstract isAuthorized(types?: Array<HealthDataType>): Promise<boolean>;
+  abstract requestAuthorization(types?: Array<HealthDataType>): Promise<void>;
   abstract query(options: PedometerQueryOptions): Promise<PedometerData>;
   abstract startUpdates(options: PedometerUpdatesOptions): Promise<void>;
   abstract stopUpdates(): Promise<void>;

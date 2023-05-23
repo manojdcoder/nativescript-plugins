@@ -3,15 +3,6 @@ import { HealthData, HealthDataType } from 'nativescript-health-data';
 
 export class Pedometer extends Common {
   private appleHealthId: string = 'com.apple.Health';
-  private dataTypes: Array<HealthDataType> = [
-    { name: 'distance', accessType: 'readAndWrite' },
-    { name: 'steps', accessType: 'readAndWrite' },
-    { name: 'calories', accessType: 'readAndWrite' },
-    { name: 'height', accessType: 'readAndWrite' },
-    { name: 'weight', accessType: 'readAndWrite' },
-    { name: 'heartRate', accessType: 'readAndWrite' },
-    { name: 'fatPercentage', accessType: 'readAndWrite' },
-  ];
 
   private mainQueue: NSObject;
   private cmPedometer: CMPedometer;
@@ -55,9 +46,9 @@ export class Pedometer extends Common {
     return Promise.resolve(CMPedometer.isPedometerEventTrackingAvailable());
   }
 
-  isAuthorized(): Promise<boolean> {
+  isAuthorized(types?: Array<HealthDataType>): Promise<boolean> {
     if (this.useHealthData) {
-      return this.healthData.isAuthorized(this.dataTypes);
+      return this.healthData.isAuthorized(types || this.defaultTypes);
     }
 
     const status = CMPedometer.authorizationStatus();
@@ -65,9 +56,9 @@ export class Pedometer extends Common {
     return Promise.resolve(authorized);
   }
 
-  requestAuthorization(): Promise<void> {
+  requestAuthorization(types?: Array<HealthDataType>): Promise<void> {
     if (this.useHealthData) {
-      return this.healthData.requestAuthorization(this.dataTypes).then(() => undefined);
+      return this.healthData.requestAuthorization(types || this.defaultTypes).then(() => undefined);
     }
 
     return new Promise((resolve, reject) => {
