@@ -18,6 +18,11 @@
             "glob": "**/*",
             "input": "packages/nativescript-pedometer/platforms/",
             "output": "./platforms/"
+          },
+          {
+            "glob": "**/*",
+            "input": "packages/nativescript-pedometer/nativescript-health-data/",
+            "output": "./nativescript-health-data/"
           }
         ],
         "dependsOn": [
