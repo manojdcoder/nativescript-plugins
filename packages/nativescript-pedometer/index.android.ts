@@ -12,6 +12,8 @@ enum State {
 }
 
 export class Pedometer extends Common {
+  protected manualSourceId: string = 'com.google.android.apps.fitness';
+
   private startSteps = 0;
   private startDate: Date = new Date();
 
@@ -22,12 +24,10 @@ export class Pedometer extends Common {
 
   constructor() {
     super();
-    const context = Utils.ad.getApplicationContext() as android.content.Context;
-    this.sensorManager = context.getSystemService(android.content.Context.SENSOR_SERVICE) as android.hardware.SensorManager;
-  }
-
-  isAvailable(): Promise<boolean> {
-    return this.isStepCountingAvailable();
+    if (!this.useHealthData) {
+      const context = Utils.ad.getApplicationContext() as android.content.Context;
+      this.sensorManager = context.getSystemService(android.content.Context.SENSOR_SERVICE) as android.hardware.SensorManager;
+    }
   }
 
   isStepCountingAvailable(): Promise<boolean> {
@@ -55,19 +55,32 @@ export class Pedometer extends Common {
   }
 
   isAuthorized(types?: Array<HealthDataType>): Promise<boolean> {
+    if (this.useHealthData) {
+      return super.isAuthorized(types);
+    }
+
     return Promise.resolve(hasPermission(android.Manifest.permission.ACTIVITY_RECOGNITION));
   }
 
   requestAuthorization(types?: Array<HealthDataType>): Promise<void> {
+    if (this.useHealthData) {
+      return super.requestAuthorization(types);
+    }
+
     return requestPermission(android.Manifest.permission.ACTIVITY_RECOGNITION);
   }
 
-  query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
-    return new Promise((resolve) => {
-      if (!endDate) {
-        endDate = new Date();
-      }
+  query(options: PedometerQueryOptions): Promise<PedometerData> {
+    if (this.useHealthData) {
+      return super.query(options);
+    }
 
+    let { startDate, endDate } = options;
+    if (!endDate) {
+      endDate = new Date();
+    }
+
+    return new Promise((resolve, reject) => {
       const database = new CouchBase(DatabaseName);
       const items = database.query({
         select: [],
@@ -87,7 +100,12 @@ export class Pedometer extends Common {
     });
   }
 
-  public startUpdates({ onUpdate }: PedometerUpdatesOptions): Promise<void> {
+  public startUpdates(options: PedometerUpdatesOptions): Promise<void> {
+    if (this.useHealthData) {
+      return super.startUpdates(options);
+    }
+
+    const { onUpdate } = options;
     return new Promise((resolve, reject) => {
       try {
         const sensors = this.getSensorList();
@@ -145,6 +163,10 @@ export class Pedometer extends Common {
   }
 
   public stopUpdates(): Promise<void> {
+    if (this.useHealthData) {
+      super.stopUpdates();
+    }
+
     return new Promise((resolve, reject) => {
       try {
         if (this.sensorEventListener) {
@@ -168,6 +190,10 @@ export class Pedometer extends Common {
 
   stopRecording(): void {
     this.invokeService(ServiceAction.Stop);
+  }
+
+  protected runOnMainThread(callback: () => void) {
+    Promise.resolve(callback).catch((err) => console.log(err));
   }
 
   private getSensorList(): java.util.List<android.hardware.Sensor> {

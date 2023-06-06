@@ -2,24 +2,17 @@ import { Common, PedometerData, PedometerEventType, PedometerEventUpdatesOptions
 import { HealthData, HealthDataType } from 'nativescript-health-data';
 
 export class Pedometer extends Common {
-  private appleHealthId: string = 'com.apple.Health';
+  protected manualSourceId: string = 'com.apple.Health';
 
   private mainQueue: NSObject;
   private cmPedometer: CMPedometer;
-  private healthData: HealthData;
 
   constructor(useHealthData: boolean = true) {
     super(useHealthData);
     this.mainQueue = dispatch_get_current_queue();
-    if (this.useHealthData) {
-      this.healthData = new HealthData();
-    } else {
+    if (!this.useHealthData) {
       this.cmPedometer = new CMPedometer();
     }
-  }
-
-  isAvailable(): Promise<boolean> {
-    return this.useHealthData ? this.healthData.isAvailable() : this.isStepCountingAvailable();
   }
 
   isStepCountingAvailable(): Promise<boolean> {
@@ -48,7 +41,7 @@ export class Pedometer extends Common {
 
   isAuthorized(types?: Array<HealthDataType>): Promise<boolean> {
     if (this.useHealthData) {
-      return this.healthData.isAuthorized(types || this.defaultTypes);
+      return super.isAuthorized(types);
     }
 
     const status = CMPedometer.authorizationStatus();
@@ -58,7 +51,7 @@ export class Pedometer extends Common {
 
   requestAuthorization(types?: Array<HealthDataType>): Promise<void> {
     if (this.useHealthData) {
-      return this.healthData.requestAuthorization(types || this.defaultTypes).then(() => undefined);
+      return super.requestAuthorization(types);
     }
 
     return new Promise((resolve, reject) => {
@@ -84,37 +77,17 @@ export class Pedometer extends Common {
     });
   }
 
-  query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
+  query(options: PedometerQueryOptions): Promise<PedometerData> {
     if (this.useHealthData) {
-      return Promise.all([this.healthData.query({ startDate, endDate, dataType: 'steps', unit: 'count', aggregateBy: 'sourceAndDay' }), this.healthData.query({ startDate, endDate, dataType: 'calories', unit: 'kcal', aggregateBy: 'sourceAndDay' })]).then((response) => {
-        const result: PedometerData = {
-          startDate: startDate,
-          endDate: endDate,
-          numberOfSteps: 0,
-          numberOfCalories: 0,
-        };
+      return super.query(options);
+    }
 
-        response[0].forEach((responseItem) => {
-          if (responseItem.source !== this.appleHealthId) {
-            result.numberOfSteps += responseItem.value;
-          }
-        });
-
-        response[1].forEach((responseItem) => {
-          if (responseItem.source !== this.appleHealthId) {
-            result.numberOfCalories += responseItem.value;
-          }
-        });
-
-        return result;
-      });
+    let { startDate, endDate } = options;
+    if (!endDate) {
+      endDate = new Date();
     }
 
     return new Promise((resolve, reject) => {
-      if (!endDate) {
-        endDate = new Date();
-      }
-
       this.cmPedometer.queryPedometerDataFromDateToDateWithHandler(startDate, endDate, (cmPedometerData, error) => {
         if (error) {
           reject(error);
@@ -125,30 +98,20 @@ export class Pedometer extends Common {
     });
   }
 
-  public startUpdates({ startDate, onUpdate }: PedometerUpdatesOptions): Promise<void> {
-    if (!startDate) {
-      startDate = new Date();
+  public startUpdates(options: PedometerUpdatesOptions): Promise<void> {
+    if (this.useHealthData) {
+      return super.startUpdates(options);
     }
 
-    if (this.useHealthData) {
-      return this.healthData.startMonitoring({
-        dataType: 'steps',
-        enableBackgroundUpdates: true,
-        backgroundUpdateFrequency: 'immediate',
-        onUpdate: (completionHandler: () => void) => {
-          dispatch_async(this.mainQueue, () => {
-            this.query({ startDate: startDate, endDate: new Date() })
-              .then((result) => onUpdate(result))
-              .then(() => completionHandler());
-          });
-        },
-      });
+    let { startDate, onUpdate } = options;
+    if (!startDate) {
+      startDate = new Date();
     }
 
     return new Promise((resolve, reject) => {
       try {
         this.cmPedometer.startPedometerUpdatesFromDateWithHandler(startDate, (cmPedometerData, error) => {
-          dispatch_async(this.mainQueue, () => {
+          this.runOnMainThread(() => {
             if (error) {
               reject(error);
             } else {
@@ -165,9 +128,7 @@ export class Pedometer extends Common {
 
   public stopUpdates(): Promise<void> {
     if (this.useHealthData) {
-      return this.healthData.stopMonitoring({
-        dataType: 'steps',
-      });
+      super.stopUpdates();
     }
 
     return new Promise((resolve, reject) => {
@@ -219,6 +180,10 @@ export class Pedometer extends Common {
         reject(error);
       }
     });
+  }
+
+  protected runOnMainThread(callback: () => void) {
+    dispatch_async(this.mainQueue, callback);
   }
 
   private convert(data: CMPedometerData): PedometerData {

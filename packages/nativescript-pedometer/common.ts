@@ -1,5 +1,5 @@
 import { ApplicationSettings, Observable } from '@nativescript/core';
-import { HealthDataType } from 'nativescript-health-data';
+import { HealthData, HealthDataType } from 'nativescript-health-data';
 
 export interface PedometerQueryOptions {
   startDate: Date;
@@ -39,7 +39,10 @@ export interface PedometerEventUpdatesOptions {
 }
 
 export abstract class Common extends Observable {
-  protected defaultTypes: Array<HealthDataType> = [
+  protected abstract manualSourceId: string;
+
+  private healthData: HealthData;
+  private defaultTypes: Array<HealthDataType> = [
     { name: 'distance', accessType: 'readAndWrite' },
     { name: 'steps', accessType: 'readAndWrite' },
     { name: 'calories', accessType: 'readAndWrite' },
@@ -48,21 +51,88 @@ export abstract class Common extends Observable {
     { name: 'heartRate', accessType: 'readAndWrite' },
     { name: 'fatPercentage', accessType: 'readAndWrite' },
   ];
+
   constructor(protected useHealthData: boolean = true) {
     super();
+    if (this.useHealthData) {
+      this.healthData = new HealthData();
+    }
   }
-  abstract isAvailable(): Promise<boolean>;
+
+  isAvailable(): Promise<boolean> {
+    return this.useHealthData ? this.healthData.isAvailable() : this.isStepCountingAvailable();
+  }
+
   abstract isStepCountingAvailable(): Promise<boolean>;
   abstract isDistanceAvailable(): Promise<boolean>;
   abstract isFloorCountingAvailable(): Promise<boolean>;
   abstract isPaceAvailable(): Promise<boolean>;
   abstract isCadenceAvailable(): Promise<boolean>;
   abstract isEventTrackingAvailable(): Promise<boolean>;
-  abstract isAuthorized(types?: Array<HealthDataType>): Promise<boolean>;
-  abstract requestAuthorization(types?: Array<HealthDataType>): Promise<void>;
-  abstract query(options: PedometerQueryOptions): Promise<PedometerData>;
-  abstract startUpdates(options: PedometerUpdatesOptions): Promise<void>;
-  abstract stopUpdates(): Promise<void>;
+  protected abstract runOnMainThread(callback: () => void);
+
+  isAuthorized(types?: Array<HealthDataType>): Promise<boolean> {
+    return this.healthData.isAuthorized(types || this.defaultTypes);
+  }
+
+  requestAuthorization(types?: Array<HealthDataType>): Promise<void> {
+    return this.healthData.requestAuthorization(types || this.defaultTypes).then(() => undefined);
+  }
+
+  query({ startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
+    if (!endDate) {
+      endDate = new Date();
+    }
+
+    return Promise.all([this.healthData.query({ startDate, endDate, dataType: 'steps', unit: 'count', aggregateBy: 'sourceAndDay' }), this.healthData.query({ startDate, endDate, dataType: 'calories', unit: 'kcal', aggregateBy: 'sourceAndDay' })]).then((response) => {
+      const result: PedometerData = {
+        startDate: startDate,
+        endDate: endDate,
+        numberOfSteps: 0,
+        numberOfCalories: 0,
+      };
+
+      response[0].forEach((responseItem) => {
+        if (responseItem.source !== this.manualSourceId) {
+          result.numberOfSteps += responseItem.value;
+        }
+      });
+
+      response[1].forEach((responseItem) => {
+        if (responseItem.source !== this.manualSourceId) {
+          result.numberOfCalories += responseItem.value;
+        }
+      });
+
+      return result;
+    });
+  }
+
+  startUpdates({ startDate, onUpdate }: PedometerUpdatesOptions): Promise<void> {
+    if (!startDate) {
+      startDate = new Date();
+    }
+
+    return this.healthData.startMonitoring({
+      dataType: 'steps',
+      enableBackgroundUpdates: true,
+      backgroundUpdateFrequency: 'immediate',
+      onUpdate: (completionHandler: () => void) => {
+        this.runOnMainThread(() => {
+          this.query({ startDate: startDate, endDate: new Date() })
+            .then((result) => onUpdate(result))
+            .then(() => completionHandler());
+        });
+      },
+    });
+  }
+
+  stopUpdates(): Promise<void> {
+    return this.healthData.stopMonitoring({
+      dataType: 'steps',
+    });
+  }
+
   startEventUpdates?(options: PedometerEventUpdatesOptions): Promise<void>;
   stopEventUpdates?(): Promise<void>;
   isRecording?(): boolean;

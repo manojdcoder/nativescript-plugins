@@ -246,6 +246,9 @@ var HealthData = (function (_super) {
     if (android.os.Build.VERSION.SDK_INT > 19) {
       permissions.push(android.Manifest.permission.BODY_SENSORS);
     }
+    if (android.os.Build.VERSION.SDK_INT > 28) {
+      permissions.push(android.Manifest.permission.ACTIVITY_RECOGNITION);
+    }
     return permissions;
   };
   return HealthData;
