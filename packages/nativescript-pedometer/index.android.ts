@@ -22,8 +22,8 @@ export class Pedometer extends Common {
   private sensorEventListener?: android.hardware.SensorEventListener;
   private state?: State;
 
-  constructor() {
-    super();
+  constructor(useHealthData: boolean = true) {
+    super(useHealthData);
     if (!this.useHealthData) {
       const context = Utils.ad.getApplicationContext() as android.content.Context;
       this.sensorManager = context.getSystemService(android.content.Context.SENSOR_SERVICE) as android.hardware.SensorManager;

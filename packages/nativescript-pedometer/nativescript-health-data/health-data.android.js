@@ -67,7 +67,7 @@ var HealthData = (function (_super) {
     });
   };
   HealthData.prototype.requestAuthorization = function (types) {
-    return Promise.all([this.requestHardwarePermissions(), this.requestAuthorizationInternal(types)]).then(function (results) {
+    return Promise.all([this.requestHardwarePermissions(types), this.requestAuthorizationInternal(types)]).then(function (results) {
       return Promise.resolve(results[0] && results[1]);
     });
   };
@@ -205,10 +205,11 @@ var HealthData = (function (_super) {
     var typeOfData = acceptableDataTypesForCommonity[pluginType];
     return aggregatedDataTypes[typeOfData];
   };
-  HealthData.prototype.requestHardwarePermissions = function () {
+  HealthData.prototype.requestHardwarePermissions = function (types) {
     var _this = this;
     return this.requestPermissionFor(
-      this.permissionsNeeded().filter(function (permission) {
+      types,
+      this.permissionsNeeded(types).filter(function (permission) {
         return !_this.wasPermissionGranted(permission);
       })
     );
@@ -220,16 +221,16 @@ var HealthData = (function (_super) {
     }
     return hasPermission;
   };
-  HealthData.prototype.wasPermissionsGrantedForAll = function () {
+  HealthData.prototype.wasPermissionsGrantedForAll = function (types) {
     var _this = this;
-    return this.permissionsNeeded().every(function (permission) {
+    return this.permissionsNeeded(types).every(function (permission) {
       return _this.wasPermissionGranted(permission);
     });
   };
-  HealthData.prototype.requestPermissionFor = function (permissions) {
+  HealthData.prototype.requestPermissionFor = function (types, permissions) {
     var _this = this;
     return new Promise(function (resolve, reject) {
-      if (!_this.wasPermissionsGrantedForAll()) {
+      if (!_this.wasPermissionsGrantedForAll(types)) {
         var activityRequestPermissionsHandler_1 = function (args) {
           core_1.Application.android.off(index_android_1.AndroidApplication.activityRequestPermissionsEvent, activityRequestPermissionsHandler_1);
           resolve(true);
@@ -241,13 +242,16 @@ var HealthData = (function (_super) {
       }
     });
   };
-  HealthData.prototype.permissionsNeeded = function () {
-    var permissions = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_NETWORK_STATE, android.Manifest.permission.GET_ACCOUNTS];
-    if (android.os.Build.VERSION.SDK_INT > 19) {
-      permissions.push(android.Manifest.permission.BODY_SENSORS);
-    }
+  HealthData.prototype.permissionsNeeded = function (types) {
+    var permissions = [android.Manifest.permission.ACCESS_NETWORK_STATE, android.Manifest.permission.GET_ACCOUNTS];
     if (android.os.Build.VERSION.SDK_INT > 28) {
       permissions.push(android.Manifest.permission.ACTIVITY_RECOGNITION);
+    }
+    if (types.find((item) => aggregatedDataTypes[acceptableDataTypesForCommonity[item.name]] === DataType.AGGREGATE_DISTANCE_DELTA)) {
+      permissions.push(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+    if (android.os.Build.VERSION.SDK_INT > 19 && types.find((item) => aggregatedDataTypes[acceptableDataTypesForCommonity[item.name]] === DataType.AGGREGATE_HEART_RATE_SUMMARY)) {
+      permissions.push(android.Manifest.permission.BODY_SENSORS);
     }
     return permissions;
   };
