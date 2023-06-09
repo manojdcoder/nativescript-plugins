@@ -243,7 +243,10 @@ var HealthData = (function (_super) {
     });
   };
   HealthData.prototype.permissionsNeeded = function (types) {
-    var permissions = [android.Manifest.permission.ACCESS_NETWORK_STATE, android.Manifest.permission.GET_ACCOUNTS];
+    var permissions = [android.Manifest.permission.ACCESS_NETWORK_STATE];
+    if (android.os.Build.VERSION.SDK_INT < 23) {
+      permissions.push(android.Manifest.permission.GET_ACCOUNTS);
+    }
     if (android.os.Build.VERSION.SDK_INT > 28) {
       permissions.push(android.Manifest.permission.ACTIVITY_RECOGNITION);
     }
