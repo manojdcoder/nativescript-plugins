@@ -1,6 +1,6 @@
 {
   "name": "@manojdcoder/nativescript-pedometer",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Add a plugin description",
   "main": "index",
   "typings": "index.d.ts",
