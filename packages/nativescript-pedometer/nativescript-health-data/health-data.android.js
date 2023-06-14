@@ -16,6 +16,7 @@ var Fitness = com.google.android.gms.fitness.Fitness;
 var GoogleApiAvailability = com.google.android.gms.common.GoogleApiAvailability;
 var TimeUnit = java.util.concurrent.TimeUnit;
 var FitnessOptions = com.google.android.gms.fitness.FitnessOptions;
+var FitnessActivities = com.google.android.gms.fitness.FitnessActivities;
 var GoogleSignIn = com.google.android.gms.auth.api.signin.GoogleSignIn;
 var HealthData = (function (_super) {
   __extends(HealthData, _super);
@@ -111,7 +112,11 @@ var HealthData = (function (_super) {
             reject('Not authorized');
             return;
           }
-          var readRequest = new DataReadRequest.Builder().read(_this.getDataType(opts.dataType)).setTimeRange(opts.startDate.getTime(), opts.endDate.getTime(), TimeUnit.MILLISECONDS).build();
+          var readRequest = new DataReadRequest.Builder().read(_this.getDataType(opts.dataType));
+          if (_this.getDataType(opts.dataType) === DataType.AGGREGATE_CALORIES_EXPENDED) {
+            readRequest = readRequest.bucketByActivitySegment(1, TimeUnit.SECONDS);
+          }
+          readRequest = readRequest.setTimeRange(opts.startDate.getTime(), opts.endDate.getTime(), TimeUnit.MILLISECONDS).build();
           Fitness.getHistoryClient(core_1.Application.android.foregroundActivity || core_1.Application.android.startActivity, GoogleSignIn.getLastSignedInAccount(core_1.Application.android.foregroundActivity || core_1.Application.android.startActivity))
             .readData(readRequest)
             .addOnSuccessListener(
@@ -153,9 +158,12 @@ var HealthData = (function (_super) {
     var result = [];
     if (readResult.getBuckets().size() > 0) {
       for (var indexBucket = 0; indexBucket < readResult.getBuckets().size(); indexBucket++) {
-        var dataSets = readResult.getBuckets().get(indexBucket).getDataSets();
-        for (var indexDataSet = 0; indexDataSet < dataSets.size(); indexDataSet++) {
-          result = result.concat(this.dumpDataSet(dataSets.get(indexDataSet), opts));
+        var bucket = readResult.getBuckets().get(indexBucket);
+        if (bucket.getActivity() !== FitnessActivities.STILL && bucket.getActivity() !== FitnessActivities.UNKNOWN) {
+          var dataSets = bucket.getDataSets();
+          for (var indexDataSet = 0; indexDataSet < dataSets.size(); indexDataSet++) {
+            result = result.concat(this.dumpDataSet(dataSets.get(indexDataSet), opts));
+          }
         }
       }
     } else if (readResult.getDataSets().size() > 0) {
