@@ -1,4 +1,4 @@
-import { EventData, Page, prompt } from '@nativescript/core';
+import { EventData, Frame, Page, prompt } from '@nativescript/core';
 import { DemoSharedNativescriptPedometer } from '@demo/shared';
 import { Pedometer } from '@manojdcoder/nativescript-pedometer';
 
@@ -17,6 +17,12 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
   private _log = '';
 
   private _isRecording = this.pedometer.isRecording?.() ?? false;
+
+  onFitbitDemoButtonTap() {
+    Frame.topmost().navigate({
+      moduleName: 'plugin-demos/nativescript-pedometer/fitbit',
+    });
+  }
 
   get activeUpdates(): boolean {
     return this._activeUpdates;

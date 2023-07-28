@@ -6,6 +6,7 @@
   <StackLayout class="p-20">
     <ScrollView class="h-full">
       <StackLayout>
+        <Button text="Fitbit Demo" tap="{{ onFitbitDemoButtonTap }}" class="btn btn-primary"/>
         <Button text="Is Available" tap="{{ isAvailable }}" class="btn btn-primary"/>
         <Button text="Is Authorized" tap="{{ isAuthorized }}" class="btn btn-primary"/>
         <Button text="Request Authorization" tap="{{ requestAuthorization }}" class="btn btn-primary"/>

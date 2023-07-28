@@ -1,0 +1,15 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <Page.actionBar>
+        <ActionBar title="nativescript-pedometer/fitbit" icon="" class="action-bar">
+        </ActionBar>
+    </Page.actionBar>
+    <StackLayout class="p-20">
+        <ScrollView class="h-full">
+            <StackLayout>
+                <Button text="Connect" tap="{{ connect }}" class="btn btn-primary" visibility="{{ authResponse ? 'collapse' : 'visible' }}" />
+                <Button text="Query" tap="{{ query }}" class="btn btn-primary" visibility="{{ authResponse ? 'visible' : 'collapse' }}" />
+                <Label text="{{ log }}" class="text-muted" textWrap="true" />
+            </StackLayout>
+        </ScrollView>
+    </StackLayout>
+</Page>
