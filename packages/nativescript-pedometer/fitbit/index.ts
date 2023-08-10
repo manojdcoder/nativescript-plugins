@@ -13,48 +13,26 @@ export interface IAuthResponse {
 }
 
 interface IActivityResponse {
-  activities: IActivityItem[];
-  pagination: IPagination;
+  'activities-steps': IActivity[];
+  'activities-steps-intraday': IActivityIntraday;
+  'activities-calories': IActivity[];
+  'activities-calories-intraday': IActivityIntraday;
 }
 
-interface IActivityItem {
-  activeDuration?: number;
-  activityLevel?: IActivityLevel[];
-  activityName?: string;
-  activityTypeId?: number;
-  calories?: number;
-  caloriesLink?: string;
-  duration?: number;
-  elevationGain?: number;
-  lastModified?: string;
-  logId?: number;
-  logType?: string;
-  manualValuesSpecified?: IManualValueSpecified;
-  originalDuration?: number;
-  originalStartTime?: string;
-  startTime?: string;
-  steps?: number;
-  tcxLink?: string;
+interface IActivity {
+  dateTime: string;
+  value: string;
 }
 
-interface IActivityLevel {
-  minutes?: number;
-  name?: string;
+interface IActivityIntraday {
+  dataset: IActivityDataset[];
+  datasetInterval: number;
+  datasetType: string;
 }
 
-interface IManualValueSpecified {
-  calories?: boolean;
-  distance?: boolean;
-  steps?: boolean;
-}
-
-interface IPagination {
-  afterDate?: string;
-  limit?: number;
-  next?: string;
-  offset?: number;
-  previous?: string;
-  sort?: string;
+interface IActivityDataset {
+  time: string;
+  value: number;
 }
 
 export class Fitbit extends Observable {
@@ -135,72 +113,92 @@ export class Fitbit extends Observable {
         if (!endDate) {
           endDate = new Date();
         }
-        const afterDate = `${startDate.getFullYear()}-${('0' + (startDate.getMonth() + 1)).slice(-2)}-${('0' + startDate.getDate()).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}:${('0' + startDate.getSeconds()).slice(-2)}`;
-        let result: PedometerData | undefined = {
+
+        const result: PedometerData | undefined = {
           startDate: startDate,
           endDate: endDate,
           numberOfSteps: 0,
           numberOfCalories: 0,
         };
 
-        if (authResponse.expires_at < new Date().getTime()) {
-          const response = await Http.request({
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            url: 'https://api.fitbit.com/oauth2/token',
-            content: `grant_type=refresh_token&refresh_token=${authResponse.refresh_token}&client_id=${authResponse.client_id}`,
-          });
+        let cursorDate = new Date(startDate.getTime());
+        cursorDate.setUTCHours(0);
+        cursorDate.setUTCMinutes(0);
+        cursorDate.setUTCSeconds(0);
+        cursorDate.setUTCMilliseconds(0);
 
-          if (response.statusCode === 200) {
-            Object.assign(authResponse, response.content.toJSON() as IAuthResponse);
-            authResponse.expires_at = new Date().getTime() + authResponse.expires_in * 1000;
-          } else {
-            reject(response.content.toJSON());
-            return;
-          }
-        }
+        while (cursorDate <= endDate) {
+          const currentTime = new Date().getTime();
+          if (authResponse.expires_at < currentTime) {
+            const response = await Http.request({
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              url: 'https://api.fitbit.com/oauth2/token',
+              content: `grant_type=refresh_token&refresh_token=${authResponse.refresh_token}&client_id=${authResponse.client_id}`,
+            });
 
-        let hasMore = true;
-        let url = `https://api.fitbit.com/1/user/${authResponse.user_id}/activities/list.json?afterDate=${afterDate}&sort=asc&limit=100&offset=0`;
-        while (hasMore) {
-          const response = await Http.request({
-            method: 'GET',
-            headers: {
-              authorization: `${authResponse.token_type} ${authResponse.access_token}`,
-              accept: 'application/json',
-            },
-            url: url,
-          });
-          if (response.statusCode === 200) {
-            const data = response.content.toJSON() as IActivityResponse;
-            const activities = data.activities || [];
-            url = data.pagination?.next ?? '';
-            hasMore = !!url;
-            for (let item of activities) {
-              const startTime = new Date(item.originalStartTime);
-              if (startTime > endDate) {
-                hasMore = false;
-                break;
-              }
-              if (item.manualValuesSpecified?.steps !== true) {
-                result.numberOfSteps += item.steps ?? 0;
-              }
-              if (item.manualValuesSpecified?.calories !== true) {
-                result.numberOfCalories += item.calories ?? 0;
-              }
+            if (response.statusCode === 200) {
+              Object.assign(authResponse, response.content.toJSON() as IAuthResponse);
+              authResponse.expires_at = currentTime + authResponse.expires_in * 1000;
+            } else {
+              throw response.content.toJSON();
             }
-          } else {
-            hasMore = false;
-            result = undefined;
-            reject(response.content.toJSON());
           }
+
+          const date = `${cursorDate.getUTCFullYear()}-${('0' + (cursorDate.getUTCMonth() + 1)).slice(-2)}-${('0' + cursorDate.getUTCDate()).slice(-2)}`;
+          const url = `https://api.fitbit.com/1/user/${authResponse.user_id}/activities/steps/date/${date}/${date}/1min/time/00:00:00/23:59:59.json`;
+          const [stepsResponse, caloriesResponse] = await Promise.all([
+            Http.request({
+              method: 'GET',
+              headers: {
+                authorization: `${authResponse.token_type} ${authResponse.access_token}`,
+                accept: 'application/json',
+              },
+              url: url,
+            }),
+            Http.request({
+              method: 'GET',
+              headers: {
+                authorization: `${authResponse.token_type} ${authResponse.access_token}`,
+                accept: 'application/json',
+              },
+              url: url.replace('steps', 'calories'),
+            }),
+          ]);
+
+          if (stepsResponse.statusCode !== 200) {
+            throw stepsResponse.content.toJSON();
+          }
+
+          if (caloriesResponse.statusCode !== 200) {
+            throw caloriesResponse.content.toJSON();
+          }
+
+          const stepsData = stepsResponse.content.toJSON() as IActivityResponse;
+          stepsData['activities-steps-intraday'].dataset.forEach((item) => {
+            const times = item.time.split(':');
+            const date = new Date(cursorDate.getTime() + (parseFloat(times[0]) || 0 * 60 * 60 * 1000) + (parseFloat(times[0]) || 0 * 60 * 1000) + (parseFloat(times[0]) || 0 * 1000));
+            if (date >= startDate && date <= endDate) {
+              result.numberOfSteps += item.value;
+            }
+          });
+
+          const caloriesData = caloriesResponse.content.toJSON() as IActivityResponse;
+          caloriesData['activities-calories-intraday'].dataset.forEach((item) => {
+            const times = item.time.split(':');
+            const date = new Date(cursorDate.getTime() + (parseFloat(times[0]) || 0 * 60 * 60 * 1000) + (parseFloat(times[0]) || 0 * 60 * 1000) + (parseFloat(times[0]) || 0 * 1000));
+            if (date >= startDate && date <= endDate) {
+              result.numberOfCalories += item.value;
+            }
+          });
+
+          cursorDate = new Date(cursorDate.getTime() + 24 * 60 * 60 * 1000);
         }
 
-        if (result) {
-          resolve(result);
-        }
+        result.numberOfCalories = Math.round(result.numberOfCalories);
+        resolve(result);
       } catch (err) {
         reject(err);
       }
