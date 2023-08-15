@@ -31,6 +31,7 @@ interface IActivityIntraday {
 }
 
 interface IActivityDataset {
+  level: number;
   time: string;
   value: number;
 }
@@ -190,7 +191,9 @@ export class Fitbit extends Observable {
             const times = item.time.split(':');
             const date = new Date(cursorDate.getTime() + (parseFloat(times[0]) || 0 * 60 * 60 * 1000) + (parseFloat(times[0]) || 0 * 60 * 1000) + (parseFloat(times[0]) || 0 * 1000));
             if (date >= startDate && date <= endDate) {
-              result.numberOfCalories += item.value;
+              if (item.level > 0) {
+                result.numberOfCalories += item.value;
+              }
             }
           });
 
