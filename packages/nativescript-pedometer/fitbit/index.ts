@@ -1,4 +1,4 @@
-import { Button, Color, Frame, GridLayout, ItemSpec, WebView, LoadEventData, isAndroid, Http, Observable } from '@nativescript/core';
+import { Button, Color, Frame, GridLayout, ItemSpec, WebView, LoadEventData, isAndroid, Http, Observable, HttpResponse } from '@nativescript/core';
 import { PedometerData, PedometerQueryOptions } from '../common';
 
 export interface IAuthResponse {
@@ -144,7 +144,7 @@ export class Fitbit extends Observable {
               Object.assign(authResponse, response.content.toJSON() as IAuthResponse);
               authResponse.expires_at = currentTime + authResponse.expires_in * 1000;
             } else {
-              throw response.content.toJSON();
+              throw this.prepareErrorObj(response);
             }
           }
 
@@ -170,17 +170,21 @@ export class Fitbit extends Observable {
           ]);
 
           if (stepsResponse.statusCode !== 200) {
-            throw stepsResponse.content.toJSON();
+            throw this.prepareErrorObj(stepsResponse);
           }
 
           if (caloriesResponse.statusCode !== 200) {
-            throw caloriesResponse.content.toJSON();
+            throw this.prepareErrorObj(caloriesResponse);
           }
 
           const stepsData = stepsResponse.content.toJSON() as IActivityResponse;
           stepsData['activities-steps-intraday'].dataset.forEach((item) => {
             const times = item.time.split(':');
-            const date = new Date(cursorDate.getTime() + (parseFloat(times[0]) || 0 * 60 * 60 * 1000) + (parseFloat(times[0]) || 0 * 60 * 1000) + (parseFloat(times[0]) || 0 * 1000));
+            const date = new Date(cursorDate.getTime());
+            date.setUTCHours(parseFloat(times[0]) || 0);
+            date.setUTCMinutes(parseFloat(times[1]) || 0);
+            date.setUTCSeconds(parseFloat(times[2]) || 0);
+            date.setUTCMilliseconds(0);
             if (date >= startDate && date <= endDate) {
               result.numberOfSteps += item.value;
             }
@@ -189,7 +193,11 @@ export class Fitbit extends Observable {
           const caloriesData = caloriesResponse.content.toJSON() as IActivityResponse;
           caloriesData['activities-calories-intraday'].dataset.forEach((item) => {
             const times = item.time.split(':');
-            const date = new Date(cursorDate.getTime() + (parseFloat(times[0]) || 0 * 60 * 60 * 1000) + (parseFloat(times[0]) || 0 * 60 * 1000) + (parseFloat(times[0]) || 0 * 1000));
+            const date = new Date(cursorDate.getTime());
+            date.setUTCHours(parseFloat(times[0]) || 0);
+            date.setUTCMinutes(parseFloat(times[1]) || 0);
+            date.setUTCSeconds(parseFloat(times[2]) || 0);
+            date.setUTCMilliseconds(0);
             if (date >= startDate && date <= endDate) {
               if (item.level > 0) {
                 result.numberOfCalories += item.value;
@@ -206,5 +214,12 @@ export class Fitbit extends Observable {
         reject(err);
       }
     });
+  }
+
+  private prepareErrorObj(response: HttpResponse): any {
+    const errorObj = response.content.toJSON() || {};
+    errorObj.headers = {};
+    Object.assign(errorObj.headers, response.headers);
+    return errorObj;
   }
 }

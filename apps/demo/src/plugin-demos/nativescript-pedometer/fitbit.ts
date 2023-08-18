@@ -38,21 +38,22 @@ export class FitbitModel extends DemoSharedNativescriptPedometer {
   }
 
   async query() {
-    const data = await prompt('Query steps since?\n In minutes', '0.5');
+    const startDate = new Date();
+    startDate.setUTCHours(0);
+    startDate.setUTCMinutes(0);
+    startDate.setUTCSeconds(0);
+    startDate.setUTCMilliseconds(0);
 
-    if (data.result) {
-      const minutes = parseFloat(data.text);
+    const endDate = new Date();
+    endDate.setUTCHours(23);
+    endDate.setUTCMinutes(59);
+    endDate.setUTCSeconds(59);
+    endDate.setUTCMilliseconds(0);
 
-      if (!isNaN(minutes)) {
-        const startDate = new Date();
-        startDate.setTime(startDate.getTime() - minutes * 60 * 1000);
-
-        try {
-          this.log = await this.fitbit.query(this.authResponse, { startDate });
-        } catch (err) {
-          console.log(err);
-        }
-      }
+    try {
+      this.log = await this.fitbit.query(this.authResponse, { startDate, endDate });
+    } catch (err) {
+      this.log = err;
     }
   }
 }
