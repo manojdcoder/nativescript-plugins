@@ -24,6 +24,12 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
     });
   }
 
+  onGarminDemoButtonTap() {
+    Frame.topmost().navigate({
+      moduleName: 'plugin-demos/nativescript-pedometer/garmin',
+    });
+  }
+
   get activeUpdates(): boolean {
     return this._activeUpdates;
   }
