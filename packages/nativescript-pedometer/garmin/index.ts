@@ -1,4 +1,4 @@
-import { Button, Color, Frame, GridLayout, Http, ItemSpec, LoadEventData, Observable, WebView, isAndroid } from '@nativescript/core';
+import { Button, Color, Frame, GridLayout, Http, HttpResponse, ItemSpec, LoadEventData, Observable, WebView, isAndroid } from '@nativescript/core';
 import OAuthSignature from './oauth-signature';
 import { PedometerData, PedometerQueryOptions } from '../common';
 
@@ -7,6 +7,45 @@ export interface IAuthResponse {
   oauth_consumer_secret: string;
   oauth_token: string;
   oauth_token_secret: string;
+}
+
+export interface IDailySummary {
+  userId: string;
+  summaryId: string;
+  calendarDate: string;
+  activityType: string;
+  activeKilocalories: number;
+  bmrKilocalories: number;
+  steps: number;
+  pushes: number;
+  distanceInMeters: number;
+  pushDistanceInMeters: number;
+  durationInSeconds: number;
+  activeTimeInSeconds: number;
+  startTimeInSeconds: number;
+  startTimeOffsetInSeconds: number;
+  moderateIntensityDurationInSeconds: number;
+  vigorousIntensityDurationInSeconds: number;
+  floorsClimbed: number;
+  minHeartRateInBeatsPerMinute: number;
+  maxHeartRateInBeatsPerMinute: number;
+  averageHeartRateInBeatsPerMinute: number;
+  restingHeartRateInBeatsPerMinute: number;
+  timeOffsetHeartRateSamples: string;
+  source: string;
+  stepsGoal: number;
+  pushesGoal: number;
+  intensityDurationGoalInSeconds: number;
+  floorsClimbedGoal: number;
+  averageStressLevel: number;
+  maxStressLevel: number;
+  stressDurationInSeconds: number;
+  restStressDurationInSeconds: number;
+  activityStressDurationInSeconds: number;
+  lowStressDurationInSeconds: number;
+  mediumStressDurationInSeconds: number;
+  highStressDurationInSeconds: number;
+  stressQualifier: string;
 }
 
 export class Garmin extends Observable {
@@ -106,7 +145,7 @@ export class Garmin extends Observable {
         };
         const uploadStartTimeInSeconds = this.toSeconds(startDate);
         const uploadEndTimeInSeconds = this.toSeconds(endDate);
-        const apiUrl = 'https://apis.garmin.com/wellness-api/rest/activityDetails';
+        const apiUrl = 'https://apis.garmin.com/wellness-api/rest/dailies';
         const apiHeader = this.generateHeader(apiUrl, 'GET', authResponse.oauth_consumer_key, authResponse.oauth_consumer_secret, authResponse.oauth_token_secret, { oauth_token: authResponse.oauth_token, uploadStartTimeInSeconds: uploadStartTimeInSeconds.toString(), uploadEndTimeInSeconds: uploadEndTimeInSeconds.toString() });
         const response = await Http.request({
           method: 'GET',
@@ -116,7 +155,20 @@ export class Garmin extends Observable {
           },
           url: `${apiUrl}?uploadStartTimeInSeconds=${uploadStartTimeInSeconds}&uploadEndTimeInSeconds=${uploadEndTimeInSeconds}`,
         });
-        console.log(response.content?.toJSON());
+
+        if (response.statusCode !== 200) {
+          throw this.prepareErrorObj(response);
+        }
+
+        const data = response.content.toJSON() as IDailySummary[];
+        const item = data[data.length - 1];
+        if (item && item.steps) {
+          result.numberOfSteps = item.steps;
+        }
+        if (item && item.activeKilocalories) {
+          result.numberOfCalories = item.activeKilocalories;
+        }
+
         resolve(result);
       } catch (err) {
         reject(err);
@@ -175,5 +227,12 @@ export class Garmin extends Observable {
       nonce += range.charAt(Math.floor(Math.random() * range.length));
     }
     return nonce;
+  }
+
+  private prepareErrorObj(response: HttpResponse): any {
+    const errorObj = response.content.toJSON() || {};
+    errorObj.headers = {};
+    Object.assign(errorObj.headers, response.headers);
+    return errorObj;
   }
 }
