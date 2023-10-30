@@ -49,6 +49,8 @@ export interface IDailySummary {
 }
 
 export class Garmin extends Observable {
+  private readonly maxTimeRange = 86400000;
+
   connect(consumerKey: string, consumerSecret: string, redirectUrl: string): Promise<IAuthResponse> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -143,30 +145,40 @@ export class Garmin extends Observable {
           numberOfSteps: 0,
           numberOfCalories: 0,
         };
-        const uploadStartTimeInSeconds = this.toSeconds(startDate);
-        const uploadEndTimeInSeconds = this.toSeconds(endDate);
-        const apiUrl = 'https://apis.garmin.com/wellness-api/rest/dailies';
-        const apiHeader = this.generateHeader(apiUrl, 'GET', authResponse.oauth_consumer_key, authResponse.oauth_consumer_secret, authResponse.oauth_token_secret, { oauth_token: authResponse.oauth_token, uploadStartTimeInSeconds: uploadStartTimeInSeconds.toString(), uploadEndTimeInSeconds: uploadEndTimeInSeconds.toString() });
-        const response = await Http.request({
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: apiHeader,
-          },
-          url: `${apiUrl}?uploadStartTimeInSeconds=${uploadStartTimeInSeconds}&uploadEndTimeInSeconds=${uploadEndTimeInSeconds}`,
-        });
 
-        if (response.statusCode !== 200) {
-          throw this.prepareErrorObj(response);
-        }
+        let cursorStartDate = new Date(startDate.getTime());
+        let cursorEndDate = cursorStartDate;
 
-        const data = response.content.toJSON() as IDailySummary[];
-        const item = data[data.length - 1];
-        if (item && item.steps) {
-          result.numberOfSteps = item.steps;
-        }
-        if (item && item.activeKilocalories) {
-          result.numberOfCalories = item.activeKilocalories;
+        while (cursorEndDate < endDate) {
+          cursorStartDate = cursorEndDate;
+          cursorEndDate = new Date(endDate.getTime() - cursorStartDate.getTime() > this.maxTimeRange ? cursorStartDate.getTime() + this.maxTimeRange : endDate.getTime());
+
+          const uploadStartTimeInSeconds = this.toSeconds(cursorStartDate);
+          const uploadEndTimeInSeconds = this.toSeconds(cursorEndDate);
+          const apiUrl = 'https://apis.garmin.com/wellness-api/rest/dailies';
+          const apiHeader = this.generateHeader(apiUrl, 'GET', authResponse.oauth_consumer_key, authResponse.oauth_consumer_secret, authResponse.oauth_token_secret, { oauth_token: authResponse.oauth_token, uploadStartTimeInSeconds: uploadStartTimeInSeconds.toString(), uploadEndTimeInSeconds: uploadEndTimeInSeconds.toString() });
+          const response = await Http.request({
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: apiHeader,
+            },
+            url: `${apiUrl}?uploadStartTimeInSeconds=${uploadStartTimeInSeconds}&uploadEndTimeInSeconds=${uploadEndTimeInSeconds}`,
+          });
+
+          if (response.statusCode !== 200) {
+            throw this.prepareErrorObj(response);
+          }
+
+          const data = response.content.toJSON() as IDailySummary[];
+          const item = data[data.length - 1];
+
+          if (item && item.steps) {
+            result.numberOfSteps = item.steps;
+          }
+          if (item && item.activeKilocalories) {
+            result.numberOfCalories = item.activeKilocalories;
+          }
         }
 
         resolve(result);
