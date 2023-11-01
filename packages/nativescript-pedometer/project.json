@@ -23,6 +23,11 @@
             "glob": "**/*",
             "input": "packages/nativescript-pedometer/nativescript-health-data/",
             "output": "./nativescript-health-data/"
+          },
+          {
+            "glob": "**/*",
+            "input": "packages/nativescript-pedometer/oauth-signature/",
+            "output": "./oauth-signature/"
           }
         ],
         "dependsOn": [

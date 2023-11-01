@@ -1,5 +1,5 @@
 import { Button, Color, Frame, GridLayout, Http, HttpResponse, ItemSpec, LoadEventData, Observable, WebView, isAndroid } from '@nativescript/core';
-import OAuthSignature from './oauth-signature';
+import OAuthSignature from '../oauth-signature';
 import { PedometerData, PedometerQueryOptions } from '../common';
 
 export interface IAuthResponse {
