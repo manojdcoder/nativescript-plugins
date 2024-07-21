@@ -1,12 +1,24 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDirs": [".", "../.."],
+    "rootDirs": [
+      ".",
+      "../.."
+    ],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@demo/shared": ["../../tools/demo/index.ts"],
-      "@manojdcoder/*": ["../../packages/*"]
+      "~/*": [
+        "src/*"
+      ],
+      "@demo/shared": [
+        "../../tools/demo/index.ts"
+      ],
+      "@manojdcoder/*": [
+        "../../packages/*"
+      ],
+      "@manojdcoder/nativescript-pedometer": [
+        "../../packages/nativescript-pedometer/index.d.ts"
+      ]
     }
   }
 }

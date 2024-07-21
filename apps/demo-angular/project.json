@@ -1,4 +1,5 @@
 {
+  "name": "demo-angular",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/demo-angular/src",
   "projectType": "application",
@@ -16,7 +17,7 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -28,7 +29,7 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -40,7 +41,7 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -51,10 +52,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/demo-angular/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     }
   }
 }

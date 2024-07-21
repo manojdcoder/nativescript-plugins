@@ -1,13 +1,14 @@
 import { Common, PedometerData, PedometerEventType, PedometerEventUpdatesOptions, PedometerQueryOptions, PedometerUpdatesOptions } from './common';
-import { HealthData, HealthDataType } from 'nativescript-health-data';
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { HealthDataType } from 'nativescript-health-data';
 
 export class Pedometer extends Common {
-  protected manualSourceId: string = 'com.apple.Health';
+  protected manualSourceId = 'com.apple.Health';
 
-  private mainQueue: NSObject;
+  private mainQueue: interop.Pointer | interop.Reference<unknown>;
   private cmPedometer: CMPedometer;
 
-  constructor(useHealthData: boolean = true) {
+  constructor(useHealthData = true) {
     super(useHealthData);
     this.mainQueue = dispatch_get_current_queue();
     if (!this.useHealthData) {
@@ -82,6 +83,7 @@ export class Pedometer extends Common {
       return super.query(options);
     }
 
+    // eslint-disable-next-line prefer-const
     let { startDate, endDate } = options;
     if (!endDate) {
       endDate = new Date();
@@ -103,6 +105,7 @@ export class Pedometer extends Common {
       return super.startUpdates(options);
     }
 
+    // eslint-disable-next-line prefer-const
     let { startDate, onUpdate } = options;
     if (!startDate) {
       startDate = new Date();

@@ -7,9 +7,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noEmitHelpers": true,
-    "target": "es2017",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -20,11 +23,19 @@
       }
     ],
     "paths": {
-      "@demo/shared": ["tools/demo/index.ts"],
-      "@manojdcoder/*": ["packages/*"],
-      "@manojdcoder/nativescript-step-counter": ["packages/nativescript-step-counter/index.d.ts"],
-      "@manojdcoder/nativescript-pedometer": ["packages/nativescript-pedometer/index.d.ts"]
+      "@demo/shared": [
+        "tools/demo/index.ts"
+      ],
+      "@manojdcoder/*": [
+        "packages/*"
+      ],
+      "@manojdcoder/nativescript-pedometer": [
+        "packages/nativescript-pedometer/index.d.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

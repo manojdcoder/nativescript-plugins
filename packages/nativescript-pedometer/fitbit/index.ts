@@ -101,7 +101,8 @@ export class Fitbit extends Observable {
 
       Frame.topmost().showModal(modalView, {
         context: {},
-        closeCallback: () => {},
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        closeCallback: () => { },
         fullscreen: true,
         cancelable: false,
       });
@@ -109,6 +110,7 @@ export class Fitbit extends Observable {
   }
 
   query(authResponse: IAuthResponse, { startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
         if (!endDate) {
@@ -216,7 +218,7 @@ export class Fitbit extends Observable {
     });
   }
 
-  private prepareErrorObj(response: HttpResponse): any {
+  private prepareErrorObj(response: HttpResponse): unknown {
     const errorObj = response.content.toJSON() || {};
     errorObj.headers = {};
     Object.assign(errorObj.headers, response.headers);

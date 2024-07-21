@@ -1,4 +1,5 @@
 import { ApplicationSettings, Observable } from '@nativescript/core';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { HealthData, HealthDataType } from 'nativescript-health-data';
 
 export interface PedometerQueryOptions {
@@ -52,7 +53,7 @@ export abstract class Common extends Observable {
     { name: 'fatPercentage', accessType: 'readAndWrite' },
   ];
 
-  constructor(protected useHealthData: boolean = true) {
+  constructor(protected useHealthData = true) {
     super();
     if (this.useHealthData) {
       this.healthData = new HealthData();

@@ -2,11 +2,26 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "~/*": ["src/*"],
-      "@demo/shared": ["tools/demo/index.ts"],
-      "@manojdcoder/*": ["../../dist/packages/*"]
+      "~/*": [
+        "src/*"
+      ],
+      "@demo/shared": [
+        "tools/demo/index.ts"
+      ],
+      "@manojdcoder/*": [
+        "../../dist/packages/*"
+      ],
+      "@manojdcoder/nativescript-pedometer": [
+        "../../packages/nativescript-pedometer/index.d.ts"
+      ]
     }
   },
-  "files": ["./references.d.ts", "./src/main.ts", "./src/polyfills.ts"],
-  "include": ["../../packages/**/references.d.ts"]
+  "files": [
+    "./references.d.ts",
+    "./src/main.ts",
+    "./src/polyfills.ts"
+  ],
+  "include": [
+    "../../packages/**/references.d.ts"
+  ]
 }

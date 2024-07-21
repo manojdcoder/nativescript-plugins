@@ -61,21 +61,14 @@ module.exports = {
     // packages
     // build output is always in dist/packages
     '@manojdcoder': {
-      // @manojdcoder/nativescript-step-counter
-      'nativescript-step-counter': {
-        build: {
-          script: 'nx run nativescript-step-counter:build.all',
-          description: '@manojdcoder/nativescript-step-counter: Build',
-        },
-      },
       // @manojdcoder/nativescript-pedometer
-      'nativescript-pedometer': {
-        build: {
-          script: 'nx run nativescript-pedometer:build.all',
-          description: '@manojdcoder/nativescript-pedometer: Build',
-        },
-      },
-      'build-all': {
+			'nativescript-pedometer': {
+				build: {
+					script: 'nx run nativescript-pedometer:build.all',
+					description: '@manojdcoder/nativescript-pedometer: Build',
+				},
+			},
+			'build-all': {
         script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
       },
@@ -85,15 +78,11 @@ module.exports = {
       description: '_____________  Focus (VS Code supported)  _____________',
     },
     focus: {
-      'nativescript-step-counter': {
-        script: 'nx run nativescript-step-counter:focus',
-        description: 'Focus on @manojdcoder/nativescript-step-counter',
-      },
       'nativescript-pedometer': {
-        script: 'nx run nativescript-pedometer:focus',
-        description: 'Focus on @manojdcoder/nativescript-pedometer',
-      },
-      reset: {
+				script: 'nx run nativescript-pedometer:focus',
+				description: 'Focus on @manojdcoder/nativescript-pedometer',
+			},
+			reset: {
         script: 'nx g @manojdcoder/plugin-tools:focus-packages',
         description: 'Reset Focus',
       },

@@ -1,10 +1,11 @@
 {
+  "name": "nativescript-pedometer",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/nativescript-pedometer",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "options": {
         "outputPath": "dist/packages/nativescript-pedometer",
         "tsConfig": "packages/nativescript-pedometer/tsconfig.json",
@@ -18,16 +19,6 @@
             "glob": "**/*",
             "input": "packages/nativescript-pedometer/platforms/",
             "output": "./platforms/"
-          },
-          {
-            "glob": "**/*",
-            "input": "packages/nativescript-pedometer/nativescript-health-data/",
-            "output": "./nativescript-health-data/"
-          },
-          {
-            "glob": "**/*",
-            "input": "packages/nativescript-pedometer/oauth-signature/",
-            "output": "./oauth-signature/"
           }
         ],
         "dependsOn": [
@@ -39,12 +30,16 @@
       }
     },
     "build.all": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts nativescript-pedometer"],
+        "commands": [
+          "node tools/scripts/build-finish.ts nativescript-pedometer"
+        ],
         "parallel": false
       },
-      "outputs": ["dist/packages/nativescript-pedometer"],
+      "outputs": [
+        "{workspaceRoot}/dist/packages/nativescript-pedometer"
+      ],
       "dependsOn": [
         {
           "target": "build.all",
@@ -57,16 +52,20 @@
       ]
     },
     "focus": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
-        "commands": ["nx g @nativescript/plugin-tools:focus-packages nativescript-pedometer"],
+        "commands": [
+          "nx g @nativescript/plugin-tools:focus-packages nativescript-pedometer"
+        ],
         "parallel": false
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/eslint:eslint",
       "options": {
-        "lintFilePatterns": ["packages/nativescript-pedometer/**/*.ts"]
+        "lintFilePatterns": [
+          "packages/nativescript-pedometer/**/*.ts"
+        ]
       }
     }
   },

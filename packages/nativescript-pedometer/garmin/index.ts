@@ -52,6 +52,7 @@ export class Garmin extends Observable {
   private readonly maxTimeRange = 86400000;
 
   connect(consumerKey: string, consumerSecret: string, redirectUrl: string): Promise<IAuthResponse> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
         const requestTokenUrl = 'https://connectapi.garmin.com/oauth-service/oauth/request_token';
@@ -122,7 +123,8 @@ export class Garmin extends Observable {
 
         Frame.topmost().showModal(modalView, {
           context: {},
-          closeCallback: () => {},
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          closeCallback: () => { },
           fullscreen: true,
           cancelable: false,
         });
@@ -133,6 +135,7 @@ export class Garmin extends Observable {
   }
 
   query(authResponse: IAuthResponse, { startDate, endDate }: PedometerQueryOptions): Promise<PedometerData> {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
         if (!endDate) {
@@ -224,7 +227,7 @@ export class Garmin extends Observable {
     let result = `OAuth oauth_nonce="${perEnc.encode(oauthNonce)}", oauth_signature="${requestTokenSignatureEncoded}", oauth_consumer_key="${key}", oauth_timestamp="${oAuthTimestamp}", oauth_signature_method="HMAC-SHA1", oauth_version="1.0"`;
 
     if (extraParams) {
-      for (let key in extraParams) {
+      for (const key in extraParams) {
         result += `, ${key}="${extraParams[key]}"`;
       }
     }
@@ -241,7 +244,7 @@ export class Garmin extends Observable {
     return nonce;
   }
 
-  private prepareErrorObj(response: HttpResponse): any {
+  private prepareErrorObj(response: HttpResponse): unknown {
     const errorObj = response.content.toJSON() || {};
     errorObj.headers = {};
     Object.assign(errorObj.headers, response.headers);

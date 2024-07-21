@@ -2,6 +2,7 @@ import { ApplicationSettings, Utils } from '@nativescript/core';
 import { hasPermission, requestPermission } from 'nativescript-permissions';
 import { CouchBase, QueryLogicalOperator } from '@triniwiz/nativescript-couchbase';
 import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions, ServiceAction, ServiceState, ServiceStateProperty } from './common';
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { HealthDataType } from 'nativescript-health-data';
 
 enum State {
@@ -12,7 +13,7 @@ enum State {
 }
 
 export class Pedometer extends Common {
-  protected manualSourceId: string = 'com.google.android.apps.fitness';
+  protected manualSourceId = 'com.google.android.apps.fitness';
 
   private startSteps = 0;
   private startDate: Date = new Date();
@@ -22,7 +23,7 @@ export class Pedometer extends Common {
   private sensorEventListener?: android.hardware.SensorEventListener;
   private state?: State;
 
-  constructor(useHealthData: boolean = true) {
+  constructor(useHealthData = true) {
     super(useHealthData);
     if (!this.useHealthData) {
       const context = Utils.ad.getApplicationContext() as android.content.Context;
@@ -75,12 +76,13 @@ export class Pedometer extends Common {
       return super.query(options);
     }
 
+    // eslint-disable-next-line prefer-const
     let { startDate, endDate } = options;
     if (!endDate) {
       endDate = new Date();
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const database = new CouchBase(DatabaseName);
       const items = database.query({
         select: [],
@@ -201,7 +203,7 @@ export class Pedometer extends Common {
   }
 
   private invokeService(action: ServiceAction): void {
-    const context = Utils.ad.getApplicationContext() as android.content.Context;
+    const context = Utils.android.getApplicationContext() as android.content.Context;
     const intent = new android.content.Intent(context, me.manojdcoder.StepCounterService.class);
 
     intent.setAction(action);
