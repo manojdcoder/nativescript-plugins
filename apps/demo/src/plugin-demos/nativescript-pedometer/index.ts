@@ -30,6 +30,12 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
     });
   }
 
+  onSamsungHealthDemoButtonTap() {
+    Frame.topmost().navigate({
+      moduleName: 'plugin-demos/nativescript-pedometer/samsung-health',
+    });
+  }
+
   get activeUpdates(): boolean {
     return this._activeUpdates;
   }

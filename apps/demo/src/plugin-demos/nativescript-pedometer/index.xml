@@ -6,15 +6,20 @@
   <StackLayout class="p-20">
     <ScrollView class="h-full">
       <StackLayout>
-        <Button text="Fitbit Demo" tap="{{ onFitbitDemoButtonTap }}" class="btn btn-primary"/>
-        <Button text="Garmin Demo" tap="{{ onGarminDemoButtonTap }}" class="btn btn-primary"/>
-        <Button text="Is Available" tap="{{ isAvailable }}" class="btn btn-primary"/>
-        <Button text="Is Authorized" tap="{{ isAuthorized }}" class="btn btn-primary"/>
-        <Button text="Request Authorization" tap="{{ requestAuthorization }}" class="btn btn-primary"/>
-        <Button text="Query" tap="{{ query }}" class="btn btn-primary"/>
-        <Button text="{{ activeUpdates ? 'Stop Updates' : 'Start Updates' }}" tap="{{ startOrStopUpdates }}" class="btn btn-primary"/>
+        <Button text="Fitbit Demo" tap="{{ onFitbitDemoButtonTap }}" class="btn btn-primary" />
+        <Button text="Garmin Demo" tap="{{ onGarminDemoButtonTap }}" class="btn btn-primary" />
+        <Button text="Samsung Health Demo" tap="{{ onSamsungHealthDemoButtonTap }}"
+          class="btn btn-primary" />
+        <Button text="Is Available" tap="{{ isAvailable }}" class="btn btn-primary" />
+        <Button text="Is Authorized" tap="{{ isAuthorized }}" class="btn btn-primary" />
+        <Button text="Request Authorization" tap="{{ requestAuthorization }}"
+          class="btn btn-primary" />
+        <Button text="Query" tap="{{ query }}" class="btn btn-primary" />
+        <Button text="{{ activeUpdates ? 'Stop Updates' : 'Start Updates' }}"
+          tap="{{ startOrStopUpdates }}" class="btn btn-primary" />
         <ios>
-          <Button text="{{ activeEventUpdates ? 'Stop Event Updates' : 'Start Event Updates' }}" tap="{{ startOrStopEventUpdates }}" class="btn btn-primary"/>
+          <Button text="{{ activeEventUpdates ? 'Stop Event Updates' : 'Start Event Updates' }}"
+            tap="{{ startOrStopEventUpdates }}" class="btn btn-primary" />
         </ios>
         <android>
           <GridLayout columns="*,auto">

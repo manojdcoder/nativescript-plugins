@@ -1,4 +1,4 @@
-import { EventData, Page, prompt } from '@nativescript/core';
+import { EventData, Page } from '@nativescript/core';
 import { DemoSharedNativescriptPedometer } from '@demo/shared';
 import { Fitbit, IAuthResponse } from '@manojdcoder/nativescript-pedometer/fitbit';
 
