@@ -8,7 +8,7 @@
       <StackLayout>
         <Button text="Fitbit Demo" tap="{{ onFitbitDemoButtonTap }}" class="btn btn-primary" />
         <Button text="Garmin Demo" tap="{{ onGarminDemoButtonTap }}" class="btn btn-primary" />
-        <Button text="Samsung Health Demo" tap="{{ onSamsungHealthDemoButtonTap }}"
+        <Button text="Google Health Demo" tap="{{ onGoogleHealthDemoButtonTap }}"
           class="btn btn-primary" />
         <Button text="Is Available" tap="{{ isAvailable }}" class="btn btn-primary" />
         <Button text="Is Authorized" tap="{{ isAuthorized }}" class="btn btn-primary" />

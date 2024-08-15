@@ -30,9 +30,9 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
     });
   }
 
-  onSamsungHealthDemoButtonTap() {
+  onGoogleHealthDemoButtonTap() {
     Frame.topmost().navigate({
-      moduleName: 'plugin-demos/nativescript-pedometer/samsung-health',
+      moduleName: 'plugin-demos/nativescript-pedometer/google-health',
     });
   }
 
