@@ -93,7 +93,7 @@ class GoogleHealth(private val activity: AppCompatActivity, private val provider
             timeRangeFilter = TimeRangeFilter.between(startTimeInstant, endTimeInstant)
           )
         )
-       callback(null,  stepResponse.records.sumOf { it.count }, totalCalResponse.records.sumOf { it.energy.inCalories }, activeCalResponse.records.sumOf { it.energy.inCalories })
+       callback(null,  stepResponse.records.sumOf { it.count }, totalCalResponse.records.sumOf { it.energy.inKilocalories }, activeCalResponse.records.sumOf { it.energy.inKilocalories })
       } catch (e: Exception) {
         callback(e.toString(), 0, 0.0, 0.0)
       }
