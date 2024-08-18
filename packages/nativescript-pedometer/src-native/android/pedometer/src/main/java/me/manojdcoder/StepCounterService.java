@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -69,7 +70,11 @@ public class StepCounterService extends Service implements SensorEventListener {
   public void onCreate() {
     super.onCreate();
     CouchbaseLite.init(getApplicationContext());
-    startForeground(1, createNotification());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+    } else {
+      startForeground(1, createNotification());
+    }
   }
 
   @Override
