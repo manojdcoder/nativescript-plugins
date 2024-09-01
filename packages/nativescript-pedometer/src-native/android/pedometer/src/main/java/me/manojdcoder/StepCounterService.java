@@ -44,11 +44,9 @@ public class StepCounterService extends Service implements SensorEventListener {
   private SensorManager sensorManager;
   private Date startDate;
 
-  @RequiresApi(api = Build.VERSION_CODES.Q)
+  @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
   protected int findForegroundServiceType() {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-      ? ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
-      : ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+    return ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH;
   }
 
   @Nullable
@@ -80,7 +78,7 @@ public class StepCounterService extends Service implements SensorEventListener {
     super.onCreate();
     boolean state = true;
     CouchbaseLite.init(getApplicationContext());
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
       try {
         startForeground(1, createNotification(), findForegroundServiceType());
       } catch (IllegalArgumentException ignored) {
@@ -92,7 +90,7 @@ public class StepCounterService extends Service implements SensorEventListener {
 
     Intent intent = new Intent("StepCounterService.State");
     intent.putExtra("state", state);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
       intent.putExtra("foregroundServiceType", findForegroundServiceType());
     }
     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
