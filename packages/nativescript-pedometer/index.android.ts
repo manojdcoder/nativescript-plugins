@@ -1,5 +1,5 @@
-import { ApplicationSettings, Utils } from '@nativescript/core';
-import { hasPermission, requestPermission } from 'nativescript-permissions';
+import { ApplicationSettings, Utils, Application } from '@nativescript/core';
+import { hasPermission, hasPermissions, requestPermission, requestPermissions } from 'nativescript-permissions';
 import { CouchBase, QueryLogicalOperator } from '@triniwiz/nativescript-couchbase';
 import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUpdatesOptions, ServiceAction, ServiceState, ServiceStateProperty } from './common';
 // eslint-disable-next-line @nx/enforce-module-boundaries
@@ -15,6 +15,7 @@ enum State {
 export class Pedometer extends Common {
   protected manualSourceId = 'com.google.android.apps.fitness';
 
+  private receiver: StepCounterStateBroadcastReceiver;
   private startSteps = 0;
   private startDate: Date = new Date();
 
@@ -187,7 +188,28 @@ export class Pedometer extends Common {
   }
 
   startRecording(): void {
+    if (!this.receiver) {
+      this.receiver = new StepCounterStateBroadcastReceiver((context, intent) => {
+        if (intent.getIntExtra('foregroundServiceType', 0) === 256 && !intent.getBooleanExtra('state', false)) {
+          this.startRecordingAsLocation();
+        }
+      });
+      const intentFilter = new android.content.IntentFilter('StepCounterService.State');
+      androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(Utils.android.getApplicationContext()).registerReceiver(this.receiver, intentFilter);
+    }
     this.invokeService(ServiceAction.Start);
+  }
+
+  async startRecordingAsLocation(): Promise<void> {
+    const permissions = [android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION];
+
+    if (hasPermissions(permissions).success !== permissions.length) {
+      await requestPermissions([android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION]);
+    }
+
+    if (hasPermissions(permissions).success === permissions.length) {
+      this.invokeService(ServiceAction.Start);
+    }
   }
 
   stopRecording(): void {
@@ -204,13 +226,24 @@ export class Pedometer extends Common {
 
   private invokeService(action: ServiceAction): void {
     const context = Utils.android.getApplicationContext() as android.content.Context;
-    const intent = new android.content.Intent(context, me.manojdcoder.StepCounterService.class);
+    const intent = new android.content.Intent(context, hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ? me.manojdcoder.StepCounterAsLocationService.class : me.manojdcoder.StepCounterService.class);
 
     intent.setAction(action);
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-      context.startForegroundService(intent);
-    } else {
-      context.startService(intent);
-    }
+    context.startForegroundService(intent);
+  }
+}
+
+@NativeClass()
+class StepCounterStateBroadcastReceiver extends android.content.BroadcastReceiver {
+  private onReceivedCallback: (context: globalAndroid.content.Context, intent: globalAndroid.content.Intent) => void;
+
+  constructor(onReceivedCallback: (context: globalAndroid.content.Context, intent: globalAndroid.content.Intent) => void) {
+    super();
+    this.onReceivedCallback = onReceivedCallback;
+    return global.__native(this);
+  }
+
+  public override onReceive(context: globalAndroid.content.Context, intent: globalAndroid.content.Intent): void {
+    this.onReceivedCallback(context, intent);
   }
 }

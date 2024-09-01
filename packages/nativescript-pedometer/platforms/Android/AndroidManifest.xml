@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
@@ -19,6 +22,15 @@
     <application>
         <service android:name="me.manojdcoder.StepCounterService"
             android:foregroundServiceType="health"
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
+        <!-- Phones like Samsung does not appear to support FOREGROUND_SERVICE_HEALTH as of
+        Android-14 -->
+        <service android:name="me.manojdcoder.StepCounterAsLocationService"
+            android:foregroundServiceType="location"
             android:permission="android.permission.FOREGROUND_SERVICE"
             android:enabled="true"
             android:exported="false">

@@ -1,4 +1,4 @@
-import { EventData, Frame, Page, prompt } from '@nativescript/core';
+import { isIOS, EventData, Frame, Page, prompt } from '@nativescript/core';
 import { DemoSharedNativescriptPedometer } from '@demo/shared';
 import { Pedometer } from '@manojdcoder/nativescript-pedometer';
 
@@ -8,7 +8,7 @@ export function navigatingTo(args: EventData) {
 }
 
 export class DemoModel extends DemoSharedNativescriptPedometer {
-  pedometer: Pedometer = new Pedometer();
+  pedometer: Pedometer = new Pedometer(isIOS);
 
   private _activeUpdates = false;
 

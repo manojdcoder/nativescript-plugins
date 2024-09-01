@@ -22,6 +22,8 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.couchbase.lite.ConcurrencyControl;
 import com.couchbase.lite.CouchbaseLite;
@@ -41,6 +43,13 @@ public class StepCounterService extends Service implements SensorEventListener {
   private PowerManager.WakeLock wakeLock;
   private SensorManager sensorManager;
   private Date startDate;
+
+  @RequiresApi(api = Build.VERSION_CODES.Q)
+  protected int findForegroundServiceType() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+      ? ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
+      : ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+  }
 
   @Nullable
   @Override
@@ -69,12 +78,24 @@ public class StepCounterService extends Service implements SensorEventListener {
   @Override
   public void onCreate() {
     super.onCreate();
+    boolean state = true;
     CouchbaseLite.init(getApplicationContext());
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-      startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      try {
+        startForeground(1, createNotification(), findForegroundServiceType());
+      } catch (IllegalArgumentException ignored) {
+        state = false;
+      }
     } else {
       startForeground(1, createNotification());
     }
+
+    Intent intent = new Intent("StepCounterService.State");
+    intent.putExtra("state", state);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      intent.putExtra("foregroundServiceType", findForegroundServiceType());
+    }
+    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
   }
 
   @Override
@@ -87,7 +108,7 @@ public class StepCounterService extends Service implements SensorEventListener {
       this,
       1,
       restartServiceIntent,
-      Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_ONE_SHOT
+      PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
     );
     AlarmManager alarmService = (AlarmManager) getSystemService(ALARM_SERVICE);
 

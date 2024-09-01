@@ -23,7 +23,7 @@ declare namespace me {
         public getAgreementText(): string;
       }
     }
-    export class StepCounterService {
+    export class StepCounterService extends android.app.Service {
       public static class: java.lang.Class<me.manojdcoder.StepCounterService>;
       public onSensorChanged(param0: globalAndroid.hardware.SensorEvent): void;
       public onAccuracyChanged(param0: globalAndroid.hardware.Sensor, param1: number): void;
@@ -32,6 +32,10 @@ declare namespace me {
       public onCreate(): void;
       public constructor();
       public onStartCommand(param0: globalAndroid.content.Intent, param1: number, param2: number): number;
+    }
+    export class StepCounterAsLocationService extends StepCounterService {}
+    export class StepCounterStateBroadcastReceiver extends android.content.BroadcastReceiver {
+      constructor(onReceivedCallback: (context: globalAndroid.content.Context, intent: globalAndroid.content.Intent) => void);
     }
   }
 }
