@@ -7,7 +7,7 @@ declare namespace me {
       public constructor(param0: androidx.appcompat.app.AppCompatActivity, param1: string);
       public isAvailable(param1: boolean): boolean;
       public isAuthorized(param0: kotlin.jvm.functions.Function1): void;
-      public requestAuthorization(param0: kotlin.jvm.functions.Function1): void;
+      public requestAuthorization(): void;
       public query(param0: number, param1: number, param2: kotlin.jvm.functions.Function4): void;
     }
     export class PermissionsRationaleActivity {

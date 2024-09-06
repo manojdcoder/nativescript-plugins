@@ -20,18 +20,10 @@ import java.time.Instant
 class GoogleHealth(private val activity: AppCompatActivity, private val providerPackageName: String) {
   private val instance: HealthConnectClient by lazy { HealthConnectClient.getOrCreate(activity)  }
   private lateinit var activityResultLauncher : ActivityResultLauncher<Set<String>>
-  private var permissionCallback: ((Boolean) -> Unit)? = null
 
   init {
     val requestPermissionActivityContract = PermissionController.createRequestPermissionResultContract(providerPackageName)
-    activityResultLauncher = activity.registerForActivityResult(requestPermissionActivityContract) { granted ->
-      permissionCallback?.let {
-        it(
-          granted.containsAll(permissions)
-        )
-      }
-      permissionCallback = null
-    }
+    activityResultLauncher = activity.registerForActivityResult(requestPermissionActivityContract) { }
   }
 
   private val permissions =
@@ -65,8 +57,7 @@ class GoogleHealth(private val activity: AppCompatActivity, private val provider
     }
   }
 
-  fun requestAuthorization(callback: (Boolean) -> Unit) {
-    permissionCallback = callback
+  fun requestAuthorization() {
     activityResultLauncher.launch(permissions)
   }
 

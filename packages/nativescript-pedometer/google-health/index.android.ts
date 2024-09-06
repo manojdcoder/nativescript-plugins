@@ -1,4 +1,4 @@
-import { Utils } from '@nativescript/core';
+import { AndroidActivityRequestPermissionsEventData, Application, Utils } from '@nativescript/core';
 import { PedometerData, PedometerQueryOptions } from '../common';
 
 let instance: me.manojdcoder.GoogleHealth;
@@ -19,9 +19,19 @@ export function isAuthorized(): Promise<boolean> {
   });
 }
 
-export function requestAuthorization(): Promise<boolean> {
-  return new Promise((resolve) => {
-    instance.requestAuthorization(new kotlin.jvm.functions.Function1({ invoke: resolve }));
+export function requestAuthorization(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    Application.android.once(Application.android.activityRequestPermissionsEvent, (e: AndroidActivityRequestPermissionsEventData) => {
+      let result = true;
+      for (let i = 0; i < e.grantResults.length; i++) {
+        if (e.grantResults[i] !== android.content.pm.PackageManager.PERMISSION_GRANTED) {
+          result = false;
+          break;
+        }
+      }
+      result ? resolve() : reject();
+    });
+    instance.requestAuthorization();
   });
 }
 
