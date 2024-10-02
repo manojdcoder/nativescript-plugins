@@ -1,6 +1,6 @@
 import { isIOS, EventData, Frame, Page, prompt } from '@nativescript/core';
 import { DemoSharedNativescriptPedometer } from '@demo/shared';
-import { Pedometer } from '@manojdcoder/nativescript-pedometer';
+import { openUrl, Pedometer } from '@manojdcoder/nativescript-pedometer';
 
 export function navigatingTo(args: EventData) {
   const page = <Page>args.object;
@@ -17,6 +17,10 @@ export class DemoModel extends DemoSharedNativescriptPedometer {
   private _log = '';
 
   private _isRecording = this.pedometer.isRecording?.() ?? false;
+
+  onOpenUrlButtonTap() {
+    openUrl('https://google.com');
+  }
 
   onFitbitDemoButtonTap() {
     Frame.topmost().navigate({

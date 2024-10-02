@@ -2,10 +2,25 @@ import { Common, PedometerData, PedometerEventType, PedometerEventUpdatesOptions
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { HealthDataType } from 'nativescript-health-data';
 
+export function openUrl(location: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    try {
+      const url = NSURL.URLWithString(location.trim());
+      if (UIApplication.sharedApplication.canOpenURL(url)) {
+        UIApplication.sharedApplication.openURLOptionsCompletionHandler(url, null, (result) => resolve(result));
+      } else {
+        resolve(false);
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 export class Pedometer extends Common {
   protected manualSourceId = 'com.apple.Health';
 
-  private mainQueue: interop.Pointer | interop.Reference<unknown>;
+  private mainQueue: NSObject & OS_dispatch_queue;
   private cmPedometer: CMPedometer;
 
   constructor(useHealthData = true) {

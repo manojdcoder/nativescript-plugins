@@ -5,6 +5,10 @@ import { Common, DatabaseName, PedometerData, PedometerQueryOptions, PedometerUp
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { HealthDataType } from 'nativescript-health-data';
 
+export function openUrl(url: string): Promise<boolean> {
+  return Promise.resolve(Utils.openUrl(url));
+}
+
 enum State {
   Starting,
   Started,

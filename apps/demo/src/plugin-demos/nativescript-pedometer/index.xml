@@ -6,6 +6,7 @@
   <StackLayout class="p-20">
     <ScrollView class="h-full">
       <StackLayout>
+        <Button text="Open URL" tap="{{ onOpenUrlButtonTap }}" class="btn btn-primary" />
         <Button text="Fitbit Demo" tap="{{ onFitbitDemoButtonTap }}" class="btn btn-primary" />
         <Button text="Garmin Demo" tap="{{ onGarminDemoButtonTap }}" class="btn btn-primary" />
         <Button text="Google Health Demo" tap="{{ onGoogleHealthDemoButtonTap }}"
