@@ -9,7 +9,7 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.StepsRecord
+// import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +28,7 @@ class GoogleHealth(private val activity: AppCompatActivity, private val provider
 
   private val permissions =
     setOf(
-      HealthPermission.getReadPermission(StepsRecord::class),
+      // HealthPermission.getReadPermission(StepsRecord::class),
       HealthPermission.getReadPermission(ActiveCaloriesBurnedRecord::class),
       HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
     )
@@ -66,12 +66,12 @@ class GoogleHealth(private val activity: AppCompatActivity, private val provider
       try {
         val startTimeInstant = Instant.ofEpochMilli(startTime)
         val endTimeInstant = Instant.ofEpochMilli(endTime)
-        val stepResponse = instance.readRecords(
+        /*val stepResponse = instance.readRecords(
             ReadRecordsRequest(
               StepsRecord::class,
               timeRangeFilter = TimeRangeFilter.between(startTimeInstant, endTimeInstant)
             )
-          )
+          )*/
         val totalCalResponse = instance.readRecords(
           ReadRecordsRequest(
             TotalCaloriesBurnedRecord::class,
@@ -84,7 +84,7 @@ class GoogleHealth(private val activity: AppCompatActivity, private val provider
             timeRangeFilter = TimeRangeFilter.between(startTimeInstant, endTimeInstant)
           )
         )
-       callback(null,  stepResponse.records.sumOf { it.count }, totalCalResponse.records.sumOf { it.energy.inKilocalories }, activeCalResponse.records.sumOf { it.energy.inKilocalories })
+       callback(null,  0, totalCalResponse.records.sumOf { it.energy.inKilocalories }, activeCalResponse.records.sumOf { it.energy.inKilocalories })
       } catch (e: Exception) {
         callback(e.toString(), 0, 0.0, 0.0)
       }

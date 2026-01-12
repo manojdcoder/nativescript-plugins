@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace 'me.manojdcoder.demo'
     compileSdk 34
 
     defaultConfig {
@@ -23,8 +24,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
